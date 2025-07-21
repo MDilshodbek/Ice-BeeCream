@@ -1,0 +1,71 @@
+<%- include('includes/header') %>
+
+<link rel="stylesheet" type="text/css" href="/css/home.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.js"></script>
+
+<body>
+  <div class="home-container">
+    <div class="navigation-menu">
+      <ul class="nav justify-content-center">
+        <li class="nav-item" style="cursor: pointer">
+          <a class="nav-link active" href="/adminRouter">Home</a>
+        </li>
+        <% if(!member) { %>
+        <li class="nav-item" style="cursor: pointer">
+          <a class="nav-link" href="/adminRouter/signup">Signup</a>
+        </li>
+        <li class="nav-item" style="cursor: pointer">
+          <a class="nav-link" href="/adminRouter/login">Login</a>
+        </li>
+        <% } else { %>
+        <li class="nav-item" style="cursor: pointer">
+          <a class="nav-link" href="/adminRouter/product/all">Menu</a>
+        </li>
+        <li class="nav-item" style="cursor: pointer">
+          <a class="nav-link" href="/adminRouter/user/all">Users</a>
+        </li>
+        <li
+          class="nav-item"
+          style="cursor: pointer"
+          onclick="return confirm('Do you want to logout?')"
+        >
+          <a class="nav-link" href="/adminRouter/logout">Logout</a>
+        </li>
+        <% } %>
+      </ul>
+    </div>
+
+    <article>
+      <div class="assets">
+        <img
+          src="http://mattcannon.games/codepen/sweet-treats/bg.webp"
+          alt="Background clouds"
+        />
+        <p>Sweet memories!</p>
+        <img
+          src="http://mattcannon.games/codepen/sweet-treats/cup-cake.png"
+          alt="Cupcake"
+          style="width: 200px; height: 250px"
+        />
+      </div>
+      <div class="blur">
+        <div class="layer" style="--index: 1"></div>
+        <div class="layer" style="--index: 2"></div>
+        <div class="layer" style="--index: 3"></div>
+        <div class="layer" style="--index: 4"></div>
+        <div class="layer" style="--index: 5"></div>
+      </div>
+      <div class="content">
+        <p>
+          <i class="fas fa-map-marker-alt"></i>
+          Ice-BeeCream
+        </p>
+        <p><i>Los Angeles, CA</i></p>
+      </div>
+    </article>
+  </div>
+
+  <script type="text/javascript" src="/js/home.js"></script>
+</body>
+
+<%- include('includes/footer') %>
