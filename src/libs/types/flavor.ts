@@ -1,12 +1,13 @@
 import { ObjectId } from "mongoose";
 
-import { FlavorStatus, FlavorType } from "../enums/product.enum";
+import { FlavorStatus, FlavorCollection } from "../enums/product.enum";
 
 export interface Flavor {
   _id: ObjectId;
   flavorStatus: FlavorStatus;
-  flavorType: FlavorType;
+  flavorCollection: FlavorCollection;
   flavorName: string;
+  flavorPrice: number;
   flavorImage: string;
   flavorLikes: number;
   createdAt: Date;
@@ -15,8 +16,9 @@ export interface Flavor {
 
 export interface FlavorInput {
   flavorStatus: FlavorStatus;
-  flavorType: FlavorType;
+  flavorCollection: FlavorCollection;
   flavorName: string;
+  flavorPrice: number;
   flavorImage?: string;
   flavorLikes?: number;
 }
@@ -24,8 +26,16 @@ export interface FlavorInput {
 export interface FlavorUpdateInput {
   _id: ObjectId;
   flavorStatus?: FlavorStatus;
-  flavorType?: FlavorType;
+  flavorCollection?: FlavorCollection;
   flavorName?: string;
+   flavorPrice?: number;
   flavorImage?: string;
   flavorLikes?: number;
+}
+
+export interface FlavorInquiry {
+  page: number;
+  limit: number;
+  flavorCollection?: FlavorCollection;
+  search?: string;
 }

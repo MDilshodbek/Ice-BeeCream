@@ -47,12 +47,9 @@ app.use(function (req, res, next) {
 
 // Views - 3
 app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "ejs"); // ejs framework browserda frontend source ni qurib beradi
+app.set("view engine", "ejs"); 
 
 // Routers - 4
-
-// Burak backend serverni React loyihamizga Rest API server sifatida ishlatiladi
-// BSSR: ejs
 app.use("/", router); // SPA: REACT & Middleware dp
 app.use("/adminRouter", routerAdmin); // BSSR: EJS
 

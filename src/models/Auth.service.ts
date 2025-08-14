@@ -15,6 +15,7 @@ class AuthService {
       const plainPayload = JSON.parse(JSON.stringify(payload));
 
       jwt.sign(
+        // payload,
         plainPayload,
         process.env.SECRET_TOKEN as string,
         {

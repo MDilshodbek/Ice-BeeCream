@@ -2,10 +2,13 @@ import { T } from "../libs/types/common";
 import Errors, { HttpCode, Message } from "../libs/errors";
 import { Request, Response } from "express";
 import ProductService from "../models/Product.service";
-import { ProductInput, ProductInquiry } from "../libs/types/product";
+import {
+  ProductInput,
+  ProductInquiry,
+} from "../libs/types/product";
 import { AdminRequest, ExtendedRequest } from "../libs/types/member";
-import { ProductCollection } from "../libs/enums/product.enum";
-import { FlavorInput } from "../libs/types/flavor";
+import { FlavorCollection, ProductCollection } from "../libs/enums/product.enum";
+import { FlavorInput, FlavorInquiry } from "../libs/types/flavor";
 
 const productService = new ProductService();
 const productController: T = {};
@@ -30,7 +33,7 @@ productController.getProducts = async (req: Request, res: Response) => {
 
     res.status(HttpCode.OK).json(result);
   } catch (error) {
-    console.log("err signup:", error);
+    console.log("err getProducts:", error);
     if (error instanceof Errors) res.status(error.code).json(error);
     else res.status(Errors.standard.code).json(Errors.standard);
   }
@@ -46,6 +49,29 @@ productController.getProduct = async (req: ExtendedRequest, res: Response) => {
     res.status(HttpCode.OK).json(result);
   } catch (error) {
     console.log("err getProduct:", error);
+    if (error instanceof Errors) res.status(error.code).json(error);
+    else res.status(Errors.standard.code).json(Errors.standard);
+  }
+};
+
+productController.getFlavors = async (req: Request, res: Response) => {
+  try {
+    console.log("getFlavors");
+    const { page, limit, flavorCollection, search } = req.query;
+
+    const inquiry: FlavorInquiry = {
+      page: Number(page),
+      limit: Number(limit),
+    };
+    if (flavorCollection)
+      inquiry.flavorCollection = flavorCollection as FlavorCollection;
+    if (search) inquiry.search = String(search);
+
+    const result = await productService.getFlavors(inquiry);
+
+    res.status(HttpCode.OK).json(result);
+  } catch (error) {
+    console.log("err getFlavors:", error);
     if (error instanceof Errors) res.status(error.code).json(error);
     else res.status(Errors.standard.code).json(Errors.standard);
   }
@@ -110,7 +136,7 @@ productController.getAllProducts = async (req: Request, res: Response) => {
 
     res.render("products", { products: products, flavors: flavors });
   } catch (error) {
-    console.log("err signup:", error);
+    console.log("err getAllProducts:", error);
     if (error instanceof Errors) res.status(error.code).json(error);
     else res.status(Errors.standard.code).json(Errors.standard);
   }
@@ -136,7 +162,7 @@ productController.createNewFlavor = async (
       `<script> alert("Successful creation"); window.location.replace('/adminRouter/product/all')</script>`
     );
   } catch (error) {
-    console.log("err createNewProduct:", error);
+    console.log("err createNewFlavor:", error);
     const message =
       error instanceof Errors ? error.message : Message.SOMETHING_WENT_WRONG;
     res.send(
@@ -154,6 +180,19 @@ productController.updateChoosenFlavor = async (req: Request, res: Response) => {
     res.status(HttpCode.OK).json({ data: result });
   } catch (error) {
     console.log("err updateChoosenProduct:", error);
+    if (error instanceof Errors) res.status(error.code).json(error);
+    else res.status(Errors.standard.code).json(Errors.standard);
+  }
+};
+
+productController.getAllFlavors = async (req: Request, res: Response) => {
+  try {
+    console.log("getAllFlavors");
+    const flavors = await productService.getAllFlavors();
+
+    res.render("flavors", { flavors: flavors });
+  } catch (error) {
+    console.log("err getAllFlavors:", error);
     if (error instanceof Errors) res.status(error.code).json(error);
     else res.status(Errors.standard.code).json(Errors.standard);
   }

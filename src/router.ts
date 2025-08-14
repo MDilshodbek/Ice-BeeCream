@@ -39,6 +39,8 @@ router.get(
   productController.getProduct
 );
 
+router.get("/flavors/all", productController.getFlavors);
+
 // Order
 
 router.post(

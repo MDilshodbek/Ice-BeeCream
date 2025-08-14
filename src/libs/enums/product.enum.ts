@@ -4,6 +4,7 @@ export enum ProductCollection {
   GELATO = "GELATO",
   CAKE = "CAKE",
   MILKSHAKES = "MILKSHAKES",
+  OTHERS = "OTHERS",
 }
 
 export enum ProductSize {
@@ -33,7 +34,7 @@ export enum ProductDish {
   COOKIE = "COOKIE",
 }
 
-export enum FlavorType {
+export enum FlavorCollection {
   GELATO = "GELATO",
   ICECREAM = "ICECREAM",
   MILKSHAKE = "MILKSHAKE",
@@ -41,7 +42,7 @@ export enum FlavorType {
 
 export enum FlavorStatus {
   AVAILABLE = "AVAILABLE",
-  SOLDOUT = "SOLDOUT"
+  SOLDOUT = "SOLDOUT",
 }
 
 export enum ProductStatus {

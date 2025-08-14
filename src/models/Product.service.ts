@@ -8,12 +8,17 @@ import {
   ProductUpdateInput,
 } from "../libs/types/product";
 import ProductModel from "../schema/Product.model";
-import { ProductStatus } from "../libs/enums/product.enum";
+import { FlavorStatus, ProductStatus } from "../libs/enums/product.enum";
 import { ObjectId } from "mongoose";
 import ViewService from "./View.service";
 import { ViewInput } from "../libs/types/like";
 import { LikeGroup } from "../libs/enums/like.enum";
-import { Flavor, FlavorInput, FlavorUpdateInput } from "../libs/types/flavor";
+import {
+  Flavor,
+  FlavorInput,
+  FlavorInquiry,
+  FlavorUpdateInput,
+} from "../libs/types/flavor";
 import FlavorModel from "../schema/Flavor.model";
 
 class ProductService {
@@ -171,6 +176,32 @@ class ProductService {
           .exec();
       }
     }
+
+    return result;
+  }
+
+  public async getFlavors(inquiry: FlavorInquiry): Promise<Flavor[]> {
+    console.log("inquiry:", inquiry);
+    const match: T = { flavorStatus: FlavorStatus.AVAILABLE };
+
+    if (inquiry.flavorCollection)
+      match.flavorCollection = inquiry.flavorCollection;
+
+    if (inquiry.search) {
+      match.flavorName = { $regex: new RegExp(inquiry.search, "i") };
+    }
+
+    console.log("match:", match);
+    const result = await this.flavorModel
+      .aggregate([
+        { $match: match },
+        { $skip: (inquiry.page * 1 - 1) * inquiry.limit },
+        { $limit: inquiry.limit * 1 },
+      ])
+      .exec();
+    console.log("result:", result);
+
+    if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
 
     return result;
   }

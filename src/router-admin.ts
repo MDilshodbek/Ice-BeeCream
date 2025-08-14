@@ -57,6 +57,13 @@ routerAdmin.post(
   productController.updateChoosenFlavor
 );
 
+
+routerAdmin.get(
+  "/flavor/all",
+  adminController.verifyAdmin,
+  productController.getAllFlavors
+);
+
 // User
 routerAdmin.get(
   "/user/all",

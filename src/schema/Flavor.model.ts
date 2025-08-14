@@ -1,12 +1,21 @@
 import mongoose, { Schema } from "mongoose";
-import { FlavorStatus, FlavorType } from "../libs/enums/product.enum";
+import { FlavorStatus, FlavorCollection } from "../libs/enums/product.enum";
 
 const flavorSchema = new Schema(
   {
-    flavorName: { type: String, required: true },
-    flavorType: {
+    flavorStatus: {
       type: String,
-      enum: FlavorType,
+      enum: FlavorStatus,
+      default: FlavorStatus.AVAILABLE,
+    },
+    flavorName: { type: String, required: true },
+    flavorPrice: {
+      type: Number,
+      required: true,
+    },
+    flavorCollection: {
+      type: String,
+      enum: FlavorCollection,
       required: true,
     },
     flavorImage: {
@@ -17,16 +26,9 @@ const flavorSchema = new Schema(
       type: Number,
       default: 0,
     },
-
-    flavorStatus: {
-      type: String,
-      enum: FlavorStatus,
-      default: FlavorStatus.AVAILABLE,
-    },
     orderCount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
-
 
 export default mongoose.model("Flavor", flavorSchema);

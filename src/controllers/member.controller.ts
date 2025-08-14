@@ -33,7 +33,6 @@ memberController.signup = async (req: Request, res: Response) => {
     console.log("err signup:", error);
     if (error instanceof Errors) res.status(error.code).json(error);
     else res.status(Errors.standard.code).json(Errors.standard);
-    // res.json({error});
   }
 };
 
@@ -49,7 +48,6 @@ memberController.login = async (req: Request, res: Response) => {
       httpOnly: false,
     });
 
-    // TODO TOKEN AUTHENTICATION
     res.status(HttpCode.OK).json({ member: result, accessToken: token });
   } catch (error) {
     console.log("err login:", error);
