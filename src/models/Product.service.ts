@@ -10,8 +10,7 @@ import {
 import ProductModel from "../schema/Product.model";
 import { FlavorStatus, ProductStatus } from "../libs/enums/product.enum";
 import { ObjectId } from "mongoose";
-import ViewService from "./View.service";
-import { ViewInput } from "../libs/types/like";
+import { LikeInput, StatisticModifier } from "../libs/types/like";
 import { LikeGroup } from "../libs/enums/like.enum";
 import {
   Flavor,
@@ -20,16 +19,17 @@ import {
   FlavorUpdateInput,
 } from "../libs/types/flavor";
 import FlavorModel from "../schema/Flavor.model";
+import LikeService from "./Like.service";
 
 class ProductService {
   private readonly productModel;
   private readonly flavorModel;
-  public viewService;
+  public likeService;
 
   constructor() {
     this.productModel = ProductModel;
     this.flavorModel = FlavorModel;
-    this.viewService = new ViewService();
+    this.likeService = new LikeService();
   }
 
   // BSSR
@@ -133,51 +133,83 @@ class ProductService {
   public async getProduct(
     memberId: ObjectId | null,
     id: string
-  ): Promise<Product> {
+  ): Promise<Product & { isLiked?: boolean }> {
     const productId = shapeIntoMongooseObjectId(id);
 
-    let result = await this.productModel
-      .findOne({
-        _id: productId,
-        productStatus: ProductStatus.PROCESS,
-      })
+    const result = await this.productModel
+      .findOne({ _id: productId, productStatus: ProductStatus.PROCESS })
+      .lean() // ✅ returns plain JS object
       .exec();
 
     if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
 
-    // ToDo if auth user
+    let isLiked = false;
+
     if (memberId) {
-      // check view exist
-      const input: ViewInput = {
+      const input: LikeInput = {
         memberId: memberId,
-        viewRefId: productId,
+        likeRefId: productId,
         likeGroup: LikeGroup.PRODUCT,
       };
-      console.log("input viewGroup:", input);
 
-      const existView = await this.viewService.checkViewExistence(input);
-
-      console.log("exist:", !!existView);
-
-      if (!existView) {
-        // insert view
-        console.log("Planning to insert new view");
-        await this.viewService.insertMemberView(input);
-
-        // increase view counts
-        result = await this.productModel
-          .findByIdAndUpdate(
-            productId,
-            {
-              $inc: { productViews: +1 },
-            },
-            { new: true }
-          )
-          .exec();
-      }
+      const existLike = await this.likeService.checkLikeExistence(input);
+      isLiked = !!existLike;
     }
 
-    return result;
+    // ✅ Just add `isLiked` to the plain object
+    return { ...result, isLiked };
+  }
+
+  public async likeTargetProduct(
+    memberId: ObjectId,
+    likeRefId: ObjectId
+  ): Promise<{ isLiked: boolean; productLikes: number }> {
+    const target: Product = await this.productModel
+      .findOne({ _id: likeRefId, productStatus: ProductStatus.PROCESS })
+      .exec();
+
+    if (!target) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+
+    const input: LikeInput = {
+      memberId: memberId,
+      likeRefId: likeRefId,
+      likeGroup: LikeGroup.PRODUCT,
+    };
+
+    // ✅ Toggle like
+    const modifier: number = await this.likeService.toggleLike(input);
+
+    // ✅ Update like count
+    const updatedProduct = await this.propertyStatsEditor({
+      _id: likeRefId,
+      targetKey: "productLikes",
+      modifier: modifier,
+    });
+
+    if (!updatedProduct) {
+      throw new Errors(
+        HttpCode.INTERNAL_SERVER_ERROR,
+        Message.SOMETHING_WENT_WRONG
+      );
+    }
+
+    return {
+      isLiked: modifier === 1,
+      productLikes: updatedProduct.productLikes,
+    };
+  }
+
+  public async propertyStatsEditor(input: StatisticModifier): Promise<Product> {
+    const { _id, targetKey, modifier } = input;
+    return await this.productModel
+      .findByIdAndUpdate(
+        _id,
+        { $inc: { [targetKey]: modifier } },
+        {
+          new: true,
+        }
+      )
+      .exec();
   }
 
   public async getFlavors(inquiry: FlavorInquiry): Promise<Flavor[]> {

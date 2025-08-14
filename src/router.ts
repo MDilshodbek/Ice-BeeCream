@@ -41,6 +41,12 @@ router.get(
 
 router.get("/flavors/all", productController.getFlavors);
 
+router.post(
+  "/product/:id/like",
+  memberController.verifyAuth,
+  productController.likeTargetProduct
+);
+
 // Order
 
 router.post(

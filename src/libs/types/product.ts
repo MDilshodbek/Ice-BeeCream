@@ -16,7 +16,7 @@ export interface Product {
   productSize: ProductSize;
   productDesc?: string;
   productImages: string[];
-  productViews: number;
+  productLikes: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,7 +38,7 @@ export interface ProductInput {
   productSize?: ProductSize;
   productDesc?: string;
   productImages?: string[];
-  productViews?: number;
+  productLikes?: number;
 }
 
 export interface ProductUpdateInput {
@@ -51,5 +51,5 @@ export interface ProductUpdateInput {
   productSize?: ProductSize;
   productDesc?: string;
   productImages?: string[];
-  productViews?: number;
+  productLikes?: number;
 }
