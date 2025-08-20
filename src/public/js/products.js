@@ -6,9 +6,9 @@ $(function () {
 
     if (selectedValue === "CAKE") {
       $("#product-collection").hide();
-      $("#product-volume").show();
+      $("#cakeSize").show();
     } else {
-      $("#product-volume").hide();
+      $("#cakeSize").hide();
       $("#product-collection").show();
     }
   });
@@ -100,14 +100,88 @@ function validateProductForm() {
 
 function validateFlavorForm() {
   const flavorName = $("#flavor-form .product-name").val();
-  const flavorType = $("#flavor-form .product-collection").val();
+  const flavorPrice = $("#flavor-form .product-price").val();
+  const flavorCollection = $("#flavor-form .product-collection").val();
   const flavorStatus = $("#flavor-form .product-status").val();
 
-  if (!flavorName || !flavorType || !flavorStatus) {
+  if (!flavorName || !flavorPrice || !flavorCollection || !flavorStatus) {
     alert("Please fill out all required flavor fields.");
     return false;
   }
+
+  // Validate price is a positive number
+  const price = parseFloat(flavorPrice);
+  if (isNaN(price) || price <= 0) {
+    alert("Please enter a valid price greater than 0.");
+    return false;
+  }
+
   return true;
+}
+
+// New function to handle flavor form submission
+async function submitFlavorForm() {
+  if (!validateFlavorForm()) {
+    return;
+  }
+
+  const flavorName = $("#flavor-form .product-name").val();
+  const flavorPrice = parseFloat($("#flavor-form .product-price").val());
+  const flavorCollection = $("#flavor-form .product-collection").val();
+  const flavorStatus = $("#flavor-form .product-status").val();
+
+  // Handle file upload
+  const flavorImageFile = $("#flavor-form .image-one")[0].files[0];
+
+  try {
+    const formData = new FormData();
+    // Use proper Flavor schema field names
+    formData.append("flavorName", flavorName);
+    formData.append("flavorPrice", flavorPrice.toString());
+    formData.append("flavorCollection", flavorCollection);
+    formData.append("flavorStatus", flavorStatus);
+
+    if (flavorImageFile) {
+      formData.append("flavorImage", flavorImageFile);
+    }
+
+    const response = await axios.post("/adminRouter/flavor/create", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    const result = response.data;
+
+    if (result.data) {
+      alert("Flavor created successfully!");
+      resetFlavorForm();
+      $(".taste-form").slideToggle(100);
+      $("#flavor-btn").show();
+      // Optionally reload the page or update the flavors list
+      location.reload();
+    } else {
+      alert("Failed to create flavor!");
+    }
+  } catch (error) {
+    console.error("Error creating flavor:", error);
+    alert("Failed to create flavor. Please try again.");
+  }
+}
+
+// Function to reset the flavor form
+function resetFlavorForm() {
+  $("#flavor-form .product-name").val("");
+  $("#flavor-form .product-price").val("");
+  $("#flavor-form .product-collection").val("ICECREAM"); // Reset to default
+  $("#flavor-form .product-status").val("AVAILABLE"); // Reset to default
+  $("#flavor-form .image-one").val("");
+
+  // Reset image preview if it exists
+  const imagePreview = document.getElementById("image-flavor-1");
+  if (imagePreview) {
+    imagePreview.src = "/img/upload.svg"; // Reset to upload icon
+  }
 }
 
 function previewFileHandler(input, order) {
@@ -132,19 +206,31 @@ function previewFileHandler(input, order) {
 
 function previewFileHandlerForFlavor(input) {
   const file = input.files[0];
-  const fileType = file?.type;
-  const validImageType = ["image/jpg", "image/jpeg", "image/png"];
-
-  if (!validImageType.includes(fileType)) {
-    alert("Please insert only jpg, jpeg or png!");
+  if (!file) {
+    console.error("No file selected");
     return;
   }
 
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function () {
-      $("#flavor-image-1").attr("src", reader.result);
-    };
-    reader.readAsDataURL(file);
+  const fileType = file.type;
+  const validImageTypes = ["image/jpeg", "image/jpg", "image/png"];
+
+  if (!validImageTypes.includes(fileType)) {
+    alert("Please upload only JPG, JPEG, or PNG images!");
+    return;
   }
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const imageElement = document.getElementById("image-flavor-1");
+    if (imageElement) {
+      imageElement.src = e.target.result;
+    } else {
+      console.error("Image element with ID 'image-flavor-1' not found");
+    }
+  };
+  reader.onerror = function () {
+    console.error("Error reading file");
+    alert("Failed to read the image file. Please try again.");
+  };
+  reader.readAsDataURL(file);
 }

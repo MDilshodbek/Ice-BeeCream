@@ -42,3 +42,14 @@ export interface OrderUpdateInput {
     orderId: string;
     orderStatus: OrderStatus;
 }
+
+export interface CustomOrderItemInput {
+  itemQuantity: number;
+  itemPrice: number; // base product price
+  productId: ObjectId;
+  gelatoSize?: string;
+  iceCreamSize?: string;
+  productDish?: string;
+  flavors?: ObjectId[];
+  orderId?: ObjectId;
+}

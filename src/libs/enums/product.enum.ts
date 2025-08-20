@@ -1,9 +1,9 @@
 export enum ProductCollection {
-  ICECREAM = "ICECREAM",
   SUNDAES = "SUNDAES",
+  ICECREAM = "ICECREAM",
+  MILKSHAKES = "MILKSHAKES",
   GELATO = "GELATO",
   CAKE = "CAKE",
-  MILKSHAKES = "MILKSHAKES",
   OTHERS = "OTHERS",
 }
 
@@ -37,7 +37,6 @@ export enum ProductDish {
 export enum FlavorCollection {
   GELATO = "GELATO",
   ICECREAM = "ICECREAM",
-  MILKSHAKE = "MILKSHAKE",
 }
 
 export enum FlavorStatus {

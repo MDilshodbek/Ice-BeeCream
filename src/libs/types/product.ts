@@ -1,7 +1,9 @@
 import { ObjectId } from "mongoose";
 
 import {
+  CakeSize,
   ProductCollection,
+  ProductDish,
   ProductSize,
   ProductStatus,
 } from "../enums/product.enum";
@@ -14,6 +16,8 @@ export interface Product {
   productPrice: number;
   productLeftCount: number;
   productSize: ProductSize;
+  cakeSize: CakeSize;
+  productDish: ProductDish;
   productDesc?: string;
   productImages: string[];
   productLikes: number;
@@ -22,11 +26,17 @@ export interface Product {
 }
 
 export interface ProductInquiry {
-  order: string;
   page: number;
   limit: number;
+  order: string;
   productCollection?: ProductCollection;
   search?: string;
+  // Add new filter parameters
+  productSize?: ProductSize;
+  cakeSize?: CakeSize;
+  productDish?: ProductDish;
+  minPrice?: number;
+  maxPrice?: number;
 }
 
 export interface ProductInput {
@@ -36,6 +46,8 @@ export interface ProductInput {
   productPrice: number;
   productLeftCount?: number;
   productSize?: ProductSize;
+  productDish?: ProductDish;
+  cakeSize?: CakeSize;
   productDesc?: string;
   productImages?: string[];
   productLikes?: number;
@@ -49,6 +61,8 @@ export interface ProductUpdateInput {
   productPrice?: number;
   productLeftCount?: number;
   productSize?: ProductSize;
+  cakeSize?: CakeSize;
+  productDish?: ProductDish;
   productDesc?: string;
   productImages?: string[];
   productLikes?: number;

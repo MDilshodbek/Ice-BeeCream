@@ -89,7 +89,7 @@ productSchema.index(
   {
     productName: 1,
     productSize: 1,
-    iceCreamize: 1,
+    iceCreamSize: 1,
     cakeSize: 1,
     gelatoSize: 1,
     productDish: 1,

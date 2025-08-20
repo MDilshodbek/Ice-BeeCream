@@ -1,5 +1,9 @@
 import mongoose, { Schema } from "mongoose";
-import { GelatoSize, ProductDish } from "../libs/enums/product.enum";
+import {
+  GelatoSize,
+  IceCreamSize,
+  ProductDish,
+} from "../libs/enums/product.enum";
 
 const orderItemSchema = new Schema(
   {
@@ -29,12 +33,17 @@ const orderItemSchema = new Schema(
       enum: GelatoSize,
     },
 
+    iceCreamSize: {
+      type: String,
+      enum: IceCreamSize,
+    },
+
     productDish: {
       type: String,
       enum: ProductDish,
     },
 
-    flavors: [{ type: String }],
+    flavors: [{ type: Schema.Types.ObjectId, ref: "Flavor" }],
   },
   { timestamps: true, collection: "orderItems" }
 );

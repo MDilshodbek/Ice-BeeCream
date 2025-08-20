@@ -66,4 +66,18 @@ orderController.updateOrder = async (req: ExtendedRequest, res: Response) => {
   }
 };
 
+orderController.createCustomOrder = async(req: ExtendedRequest, res: Response) => {
+    try {
+      console.log("createCustomOrder");
+
+      const result = await orderService.createCustomOrder(req.member, req.body);
+
+      res.status(HttpCode.CREATED).json(result);
+    } catch (err) {
+      console.log("err createCustomOrder:", err);
+      if (err instanceof Errors) res.status(err.code).json(err);
+      else res.status(Errors.standard.code).json(Errors.standard);
+    }
+  }
+
 export default orderController;

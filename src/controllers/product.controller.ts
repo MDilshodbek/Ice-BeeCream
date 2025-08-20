@@ -5,8 +5,11 @@ import ProductService from "../models/Product.service";
 import { ProductInput, ProductInquiry } from "../libs/types/product";
 import { AdminRequest, ExtendedRequest } from "../libs/types/member";
 import {
+  CakeSize,
   FlavorCollection,
   ProductCollection,
+  ProductDish,
+  ProductSize,
 } from "../libs/enums/product.enum";
 import { FlavorInput, FlavorInquiry } from "../libs/types/flavor";
 import LikeService from "../models/Like.service";
@@ -21,16 +24,34 @@ const productController: T = {};
 productController.getProducts = async (req: Request, res: Response) => {
   try {
     console.log("getProducts");
-    const { page, limit, order, productCollection, search } = req.query;
+
+    const {
+      page,
+      limit,
+      order,
+      productCollection,
+      search,
+      productSize,
+      cakeSize,
+      productDish,
+      minPrice,
+      maxPrice,
+    } = req.query;
 
     const inquiry: ProductInquiry = {
       order: String(order),
       page: Number(page),
       limit: Number(limit),
     };
+
     if (productCollection)
       inquiry.productCollection = productCollection as ProductCollection;
     if (search) inquiry.search = String(search);
+    if (productSize) inquiry.productSize = productSize as ProductSize;
+    if (cakeSize) inquiry.cakeSize = cakeSize as CakeSize;
+    if (productDish) inquiry.productDish = productDish as ProductDish;
+    if (minPrice) inquiry.minPrice = Number(minPrice);
+    if (maxPrice) inquiry.maxPrice = Number(maxPrice);
 
     const result = await productService.getProducts(inquiry);
 
@@ -46,7 +67,7 @@ productController.getProduct = async (req: ExtendedRequest, res: Response) => {
   try {
     console.log("getProduct");
     const { id } = req.params;
-    const memberId = req.member?._id ?? null
+    const memberId = req.member?._id ?? null;
 
     const result = await productService.getProduct(memberId, id);
 

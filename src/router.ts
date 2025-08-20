@@ -55,6 +55,12 @@ router.post(
   orderController.createOrder
 );
 
+router.post(
+  "/custom-order/create",
+  memberController.verifyAuth, 
+  orderController.createCustomOrder
+);
+
 router.get(
   "/order/all",
   memberController.verifyAuth,

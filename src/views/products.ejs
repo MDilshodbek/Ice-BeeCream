@@ -50,7 +50,7 @@
               <td><%= value.productName %></td>
               <td><%= value.productCollection %></td>
               <td>
-                <%= value.productCollection ? value.productSize : value.cakeSize %>
+               <%= value.productCollection === 'CAKE' ? value.cakeSize : value.productSize %>
               </td>
               <td><%= value.productPrice %></td>
               <td><%= value.productLeftCount %></td>
@@ -87,7 +87,7 @@
             <span class="new-dish-txt">NEW PRODUCT DETAIL</span>
           </div>
 
-          <div class="login-input-frame">
+          <div class="long-input-frame">
             <!-- product Type -->
              <div class="long-input">
               <label>Product Type</label>
@@ -127,9 +127,9 @@
               </select>
             </div>
 
-            <div class="half-input" id="product-volume" style="display: none">
+            <div class="half-input" id="cakeSize" style="display: none">
               <label>Cake Size</label>
-              <select class="product-volume" name="productVolume">
+              <select class="cakeSize" name="cakeSize">
                 <option value="SHORT">short cake</option>
                 <option value="FULL" selected>full cake</option>
               </select>
@@ -239,6 +239,7 @@
                 <th scope="col">T/r</th>
                 <th scope="col">Flavor Name</th>
                 <th scope="col">Flavor Type</th>
+                <th scope="col">Flavor Price</th>
                 <th scope="col">Status</th>
               </tr>
             </thead>
@@ -247,7 +248,8 @@
             <tbody style="background: white">
               <td><%= key + 1 %></td>
               <td><%= value.flavorName %></td>
-              <td><%= value.flavorType %></td>
+              <td><%= value.flavorCollection %></td>
+              <td><%= value.flavorPrice %></td>
               <td>
                 <select class="spec-select new-product-status" id="<%= value._id%>" data-type="flavor">
                   <option value="AVAILABLE" <%= value.flavorStatus === 'AVAILABLE' ? 'selected' : ''%>>AVAILABLE</option>
@@ -269,75 +271,87 @@
         </div>
 
         <form
-        id="flavor-form"
-        onsubmit="return validateFlavorForm()"
-          action="/adminRouter/flavor/create"
-          method="POST"
-          class="dish-container taste-form"
-          enctype="multipart/form-data"
-        >
-          <div class="long-input" style="display: flex; align-items: center">
-            <span class="new-dish-txt">NEW FLAVOR DETAIL</span>
-          </div>
-          
-          <div class="login-input-frame">
-            <!-- product Type -->
-           
-            
-            <input
-              name="productStatus"
-              value="AVAILABLE"
-              class="product-status"
-              hidden
-            />
-          </div>
-          <div class="half-input-frame">
-            <!-- product name -->
-               <div class="half-input">
-              <label>Flavor Type</label>
-              <select class="product-collection" name="productCollection">
-                <option value="ICECREAM" selected>IceCream</option>
-                <option value="GELATO">Gelato</option>
-                <option value="MILKSHAKES">Milkshakes</option>
-              </select>
-            </div> 
+  id="flavor-form"
+  onsubmit="return validateFlavorForm()"
+  action="/adminRouter/flavor/create"
+  method="POST"
+  class="dish-container taste-form"
+  enctype="multipart/form-data"
+>
+  <div class="long-input" style="display: flex; align-items: center">
+    <span class="new-dish-txt">NEW FLAVOR DETAIL</span>
+  </div>
+  
+  <div class="login-input-frame">
+    <!-- Hidden status field with proper name -->
+    <input
+      name="flavorStatus"
+      value="AVAILABLE"
+      class="product-status"
+      hidden
+    />
+  </div>
+  
+  <div class="long-input-frame">
+    <!-- Flavor Collection -->
+    <div class="long-input">
+      <label>Flavor Type</label>
+      <select class="product-collection" name="flavorCollection">
+        <option value="ICECREAM" selected>IceCream</option>
+        <option value="GELATO">Gelato</option>
+      </select>
+    </div> 
+  </div>
+  
+  <div class="half-input-frame">
+    <!-- Flavor name with proper name attribute -->
+    <div class="half-input">
+      <label>Flavor Name</label>
+      <input
+        type="text"
+        placeholder="Name"
+        name="flavorName"
+        class="product-name"
+      />
+    </div>
 
-             <div class="half-input">
-              <label>Flavor Name</label>
-              <input
-                type="text"
-                placeholder="Name"
-                name="productName"
-                class="product-name"
-              />
-            </div>
-          </div>
+    <!-- Flavor price with proper name attribute -->
+    <div class="half-input">
+      <label>Flavor Price</label>
+      <input
+        type="text"
+        placeholder="Price"
+        name="flavorPrice"
+        class="product-price"
+      />
+    </div>
+  </div>
 
-          <div class="img-frame">
-            <label>Flavor Image</label>
-            <div class="media-frame">
-              <div class="upload-img-box">
-                <img src="/img/upload.svg" class="1" id="flavor-section-1" />
-                <input
-                  type="file"
-                  id="file"
-                  name="productImages"
-                  class="image-one"
-                  required
-                  onchange = "previewFileHandler(this, 1)"
-                />
-              </div>
-              <input name="restaurantIid" class="restaurant-id" hidden />
-            </div>
-          </div>
+  <div class="img-frame">
+    <label>Product Image</label>
+    <div class="media-frame">
+      <div class="upload-img-box">
+        <img src="/img/upload.svg" id="image-flavor-1" />
+        <input
+          type="file"
+          id="file"
+          name="flavorImage"
+          class="image-one"
+          required
+          onchange="previewFileHandlerForFlavor(this)"
+        />
+      </div>
+      <input name="restaurantIid" class="restaurant-id" hidden />
+    </div>
+  </div>
 
-          <div class="operation-buttons">
-            <button class="btn btn-danger" id="flavor-cancel-btn">Cancel</button>
-            <button type="submit" class="btn btn-primary" id="flavor-create-btn">
-              Create
-            </button>
-          </div>
-        </form>
+  <div class="operation-buttons">
+    <button class="btn btn-danger" id="flavor-cancel-btn" type="button">Cancel</button>
+    <button type="submit" class="btn btn-primary" id="flavor-create-btn">
+      Create
+    </button>
+  </div>
+</form>
 
       </div>
     </div>

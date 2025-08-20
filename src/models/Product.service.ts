@@ -104,17 +104,44 @@ class ProductService {
     console.log("inquiry:", inquiry);
     const match: T = { productStatus: ProductStatus.PROCESS };
 
-    if (inquiry.productCollection)
+    // Category filter
+    if (inquiry.productCollection) {
       match.productCollection = inquiry.productCollection;
+    }
 
+    // Search filter (product name)
     if (inquiry.search) {
       match.productName = { $regex: new RegExp(inquiry.search, "i") };
     }
 
+    // Size filter
+    if (inquiry.productCollection === "CAKE" && inquiry.cakeSize) {
+      match.cakeSize = inquiry.cakeSize; // use cakeSize for CAKE
+    } else if (inquiry.productSize) {
+      match.productSize = inquiry.productSize; // use productSize for others
+    }
+
+    // Dish type filter
+    if (inquiry.productDish) {
+      match.productDish = inquiry.productDish;
+    }
+
+    // Price range filter
+    if (inquiry.minPrice !== undefined || inquiry.maxPrice !== undefined) {
+      match.productPrice = {};
+      if (inquiry.minPrice !== undefined) {
+        match.productPrice.$gte = inquiry.minPrice;
+      }
+      if (inquiry.maxPrice !== undefined) {
+        match.productPrice.$lte = inquiry.maxPrice;
+      }
+    }
+
+    // Sorting logic
     const sort: T =
       inquiry.order === "productPrice"
-        ? { [inquiry.order]: 1 }
-        : { [inquiry.order]: -1 };
+        ? { [inquiry.order]: 1 } // Ascending for price
+        : { [inquiry.order]: -1 }; // Descending for others (new, likes)
 
     const result = await this.productModel
       .aggregate([
@@ -156,7 +183,6 @@ class ProductService {
       isLiked = !!existLike;
     }
 
-    // ✅ Just add `isLiked` to the plain object
     return { ...result, isLiked };
   }
 
