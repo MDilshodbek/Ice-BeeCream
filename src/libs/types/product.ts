@@ -23,6 +23,8 @@ export interface Product {
   productLikes: number;
   createdAt: Date;
   updatedAt: Date;
+  //   From aggregations
+  meLiked: boolean;
 }
 
 export interface ProductInquiry {

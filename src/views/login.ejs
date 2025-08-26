@@ -1,47 +1,68 @@
 <%- include('includes/header') %>
 
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Archivo:wght@400;600;700&display=swap"
+  rel="stylesheet"
+/>
+
 <link rel="stylesheet" type="text/css" href="/css/login.css" />
 
 <body>
-  <form class="login-container" action="/adminRouter/login" METHOD="POST">
-    <div class="login-frame">
-      <div class="login-top">
-        <span>Enter</span>
-        <div>
-          Go back <a href="/adminRouter" style="color: #6440fb">Home</a>
+  <div class="login-wrapper">
+
+    <form
+      class="login-container"
+      action="/adminRouter/login"
+      method="POST"
+      novalidate
+    >
+      <div class="login-frame">
+        <div class="login-top">
+          <span class="enter-title">Enter</span>
+          <div class="nav-links">Go back <a href="/adminRouter">Home</a></div>
+          <p class="nav-links">
+            Not registered yet?
+            <a href="/adminRouter/signup">Signup</a>
+          </p>
         </div>
-        <p>
-          Not registered yet?
-          <a href="/adminRouter/signup" style="color: #6440fb">Signup</a>
-        </p>
+
+        <div class="login-input-frame">
+          <div class="login-input-container">
+            <label>Cafe *</label>
+            <input
+              type="text"
+              name="memberNick"
+              class="member-nick"
+              placeholder="Username"
+              required
+            />
+          </div>
+          <div class="login-input-container">
+            <label>Password *</label>
+            <input
+              type="password"
+              name="memberPassword"
+              class="member-password"
+              placeholder="Password"
+              required
+            />
+          </div>
+        </div>
+
+        <button class="login-btn btn" name="login" type="submit">Login</button>
+
+        <!-- Google Login Button -->
+        <div class="google-login">
+          <a href="/auth/google" class="google-btn">
+            <img class="google-icon" src="/img/google.png" alt="Google Icon" />
+            <span>Login with Google</span>
+          </a>
+        </div>
       </div>
-      <div class="login-input-frame">
-        <div class="login-input-container">
-          <label>Cafe *</label>
-          <input
-            type="text"
-            name="memberNick"
-            class="member-nick"
-            placeholder="Username"
-            value=""
-            required
-          />
-        </div>
-        <div class="login-input-container">
-          <label>Password *</label>
-          <input
-            type="password"
-            name="memberPassword"
-            class="member-password"
-            placeholder="Password"
-            value=""
-            required
-          />
-        </div>
-      </div>
-      <button class="login-btn btn" name="login" type="submit">Login</button>
-    </div>
-  </form>
+    </form>
+  </div>
 </body>
 
 <%- include('includes/footer') %>

@@ -1,6 +1,27 @@
 console.log("Products frontend javascript file");
 
 $(function () {
+  // Toggle Button Functionality
+  $("#cafe-menu-btn").on("click", function () {
+    // Show cafe menu section
+    $(".cafe-menu-section").addClass("active");
+    $(".flavor-list-section").removeClass("active");
+
+    // Update button states
+    $(this).addClass("active");
+    $("#flavor-list-btn").removeClass("active");
+  });
+
+  $("#flavor-list-btn").on("click", function () {
+    // Show flavor list section
+    $(".flavor-list-section").addClass("active");
+    $(".cafe-menu-section").removeClass("active");
+
+    // Update button states
+    $(this).addClass("active");
+    $("#cafe-menu-btn").removeClass("active");
+  });
+
   $(".product-collection").on("change", () => {
     const selectedValue = $(".product-collection").val();
 

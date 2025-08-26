@@ -9,6 +9,7 @@ import {
   OrderUpdateInput,
 } from "../libs/types/order";
 import { OrderStatus } from "../libs/enums/order.enum";
+import { CustomBuildRequest } from "../libs/types/customOrder";
 
 const orderService = new OrderService();
 const orderController: T = {};
@@ -66,18 +67,25 @@ orderController.updateOrder = async (req: ExtendedRequest, res: Response) => {
   }
 };
 
-orderController.createCustomOrder = async(req: ExtendedRequest, res: Response) => {
-    try {
-      console.log("createCustomOrder");
-
-      const result = await orderService.createCustomOrder(req.member, req.body);
-
-      res.status(HttpCode.CREATED).json(result);
-    } catch (err) {
-      console.log("err createCustomOrder:", err);
-      if (err instanceof Errors) res.status(err.code).json(err);
-      else res.status(Errors.standard.code).json(Errors.standard);
+orderController.buildCustom = async (req: Request, res: Response) => {
+  try {
+    const body = req.body as CustomBuildRequest;
+    if (
+      !body ||
+      !body.flavorCollection ||
+      !body.size ||
+      !body.dishType ||
+      !Array.isArray(body.flavorIds)
+    ) {
+      return res.status(400).json({ message: "Invalid payload" });
     }
+    const result = await orderService.buildCustom(body);
+    return res.json(result);
+  } catch (err) {
+    console.log("err buildCustomController:", err);
+    if (err instanceof Errors) res.status(err.code).json(err);
+    else res.status(Errors.standard.code).json(Errors.standard);
   }
+};
 
 export default orderController;

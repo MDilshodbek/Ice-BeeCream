@@ -36,14 +36,13 @@ class LikeService {
     return modifier;
   }
 
-  public async checkLikeExistence(input: LikeInput): Promise<Like> {
-    return await this.likeModel
-      .findOne({
-        memberId: input.memberId,
-        likeRefId: input.likeRefId,
-        likeGroup: input.likeGroup,
-      })
-      .exec();
+  public async checkLikeExistence(input: LikeInput): Promise<boolean> {
+    const exists = await this.likeModel.exists({
+      memberId: input.memberId,
+      likeRefId: input.likeRefId,
+      likeGroup: input.likeGroup,
+    });
+    return !!exists; // Converts to true/false
   }
 }
 

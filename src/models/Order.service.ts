@@ -1,33 +1,70 @@
+// services/Order.service.ts
+import crypto from "crypto";
+import { Types, ObjectId } from "mongoose";
+
 import OrderItemModel from "../schema/OrderItem.model";
 import OrderModel from "../schema/Order.model";
+import customOrderModel from "../schema/customOrder.model";
+import FlavorModel from "../schema/Flavor.model";
+
 import { Member } from "../libs/types/member";
 import {
-  CustomOrderItemInput,
   Order,
   OrderInquiry,
   OrderItemInput,
   OrderUpdateInput,
 } from "../libs/types/order";
+import {
+  CustomBuildRequest,
+  CustomBuildResponse,
+} from "../libs/types/customOrder";
+
 import { shapeIntoMongooseObjectId } from "../libs/config";
 import Errors, { HttpCode, Message } from "../libs/errors";
-import { ObjectId } from "mongoose";
 import { OrderStatus } from "../libs/enums/order.enum";
-import MemberService from "./Member.service";
-import customeOrderItemModel from "../schema/customeOrderItem.model";
-import FlavorModel from "../schema/Flavor.model";
+import {
+  FlavorStatus,
+  IceCreamSize,
+  ProductDish,
+} from "../libs/enums/product.enum";
+
+/** ===== Business rules & helpers ===== */
+const SIZE_SLOTS: Record<IceCreamSize, number> = {
+  [IceCreamSize.TWO]: 2,
+  [IceCreamSize.THREE]: 3,
+  [IceCreamSize.FIVE]: 5,
+};
+
+const BASE_BY_SIZE: Record<IceCreamSize, number> = {
+  [IceCreamSize.TWO]: 6.0,
+  [IceCreamSize.THREE]: 8.5,
+  [IceCreamSize.FIVE]: 12.5,
+};
+
+const DISH_UPCHARGE: Record<ProductDish, number> = {
+  [ProductDish.CUP]: 0.0,
+  [ProductDish.COOKIE]: 0.7,
+};
+
+const PRICING_VERSION = 1;
+
+const money = (n: number) => Math.round(n * 100) / 100;
+/** ==================================== */
 
 class OrderService {
   private readonly orderModel;
   private readonly orderItemModel;
   private readonly memberService;
-  private readonly customeOrderItem
-  private readonly flavorModel
+  private readonly customeOrderModel;
+  private readonly flavorModel;
 
   constructor() {
     this.orderModel = OrderModel;
     this.orderItemModel = OrderItemModel;
-    this.customeOrderItem = customeOrderItemModel;
-    this.flavorModel = FlavorModel
+    this.customeOrderModel = customOrderModel;
+    this.flavorModel = FlavorModel;
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const MemberService = require("./Member.service").default;
     this.memberService = new MemberService();
   }
 
@@ -36,27 +73,28 @@ class OrderService {
     input: OrderItemInput[]
   ): Promise<Order> {
     const memberId = shapeIntoMongooseObjectId(member._id);
-    const amount = input.reduce((acc: number, item: OrderItemInput) => {
-      return acc + item.itemPrice * item.itemQuantity;
-    }, 0);
+    const amount = input.reduce(
+      (acc: number, item: OrderItemInput) =>
+        acc + item.itemPrice * item.itemQuantity,
+      0
+    );
     const delivery = amount < 50 ? 5 : 0;
-    console.log("values:", amount, delivery);
+    const discount = amount > 20 ? amount * 0.1 : 0;
+    const grandTotal = amount + delivery - discount;
 
     try {
       const newOrder: Order = await this.orderModel.create({
-        orderTotal: amount + delivery,
+        orderGrandTotal: grandTotal,
+        orderSubTotal: amount,
+        orderDiscount: Number(discount.toFixed(1)),
         orderDelivery: delivery,
         memberId: memberId,
       });
 
       const orderId = newOrder._id;
-      console.log("orderId", newOrder._id);
       await this.recordOrderItem(orderId, input);
-      console.log(newOrder);
-
       return newOrder;
     } catch (err) {
-      console.log("error, model: createOrder:", err);
       throw new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED);
     }
   }
@@ -78,12 +116,16 @@ class OrderService {
     console.log("orderItemsState:", orderItemsState);
   }
 
+  // Order.service.ts
+  // Order.service.ts
   public async getMyOrders(
     member: Member,
     inquiry: OrderInquiry
   ): Promise<Order[]> {
     const memberId = shapeIntoMongooseObjectId(member._id);
-    const matches = { memberId: memberId, orderStatus: inquiry.orderStatus };
+    const matches = { memberId, orderStatus: inquiry.orderStatus };
+
+    const customColl = this.customeOrderModel.collection.name; // e.g. "customorders"
 
     const result = await this.orderModel
       .aggregate([
@@ -91,6 +133,7 @@ class OrderService {
         { $sort: { updatedAt: -1 } },
         { $skip: (inquiry.page - 1) * inquiry.limit },
         { $limit: inquiry.limit },
+
         {
           $lookup: {
             from: "orderItems",
@@ -107,11 +150,46 @@ class OrderService {
             as: "productData",
           },
         },
+        {
+          $lookup: {
+            from: customColl,
+            localField: "orderItems.productId",
+            foreignField: "_id",
+            as: "customData",
+          },
+        },
+        // Make customs look exactly like products for the UI
+        {
+          $addFields: {
+            productData: {
+              $concatArrays: [
+                "$productData",
+                {
+                  $map: {
+                    input: "$customData",
+                    as: "c",
+                    in: {
+                      _id: "$$c._id",
+                      productName: "$$c.displayName",
+                      // IMPORTANT: array of strings, not objects
+                      productImages: ["$$c.image"],
+                      // Keep fields the UI reads below
+                      productDish: "$$c.dishType",
+                      productSize: "$$c.size",
+                      productCollection: "$$c.flavorCollection",
+                      isCustom: true,
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        },
+        { $project: { customData: 0 } },
       ])
       .exec();
 
     if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
-
     return result;
   }
 
@@ -146,55 +224,113 @@ class OrderService {
     return result;
   }
 
-    public async createCustomOrder(member: Member, input: CustomOrderItemInput[]): Promise<Order> {
-    const memberId = shapeIntoMongooseObjectId(member._id);
+  /** ---------- Custom build (SKU) ---------- */
 
-    // Calculate amount dynamically
-    let amount = 0;
+  private buildSignature(
+    input: { flavorCollection: string; size: string; dishType: string },
+    sortedIdsCsv: string
+  ): string {
+    return crypto
+      .createHash("sha1")
+      .update(
+        `v${PRICING_VERSION}|${input.flavorCollection}|${input.size}|${input.dishType}|${sortedIdsCsv}`
+      )
+      .digest("hex");
+  }
 
-    for (const item of input) {
-      // Base price comes from request body (product base price)
-      let itemTotal = item.itemPrice;
-
-      // Add flavor prices
-      if (item.flavors && item.flavors.length > 0) {
-        const flavors = await this.flavorModel.find({ _id: { $in: item.flavors } });
-        const flavorTotal = flavors.reduce((sum, f) => sum + f.flavorPrice, 0);
-        itemTotal += flavorTotal;
-      }
-
-      // Multiply by quantity
-      amount += itemTotal * item.itemQuantity;
+  public async buildCustom(
+    input: CustomBuildRequest
+  ): Promise<CustomBuildResponse> {
+    // Narrow undefined optionals for safe indexing
+    const { flavorCollection, size, dishType, flavorIds } = input;
+    if (!flavorCollection || !size || !dishType || !Array.isArray(flavorIds)) {
+      throw new Errors(HttpCode.BAD_REQUEST, Message.CHOOSE_FLAVOR);
     }
 
-    const delivery = amount < 50 ? 5 : 0;
+    // normalize ids: unique + sort
+    const uniqueSortedIds = [...new Set(flavorIds)].sort();
+    const required = SIZE_SLOTS[size as IceCreamSize];
+    if (!required || uniqueSortedIds.length !== required) {
+      throw new Errors(HttpCode.BAD_REQUEST, Message.CHOOSE_FLAVOR);
+    }
 
+    // validate flavors
+    const flavorObjectIds = uniqueSortedIds.map((id) =>
+      shapeIntoMongooseObjectId(id)
+    );
+    const flavors = await this.flavorModel
+      .find({
+        _id: { $in: flavorObjectIds },
+        flavorStatus: FlavorStatus.AVAILABLE,
+      })
+      .lean();
+
+    if (flavors.length !== uniqueSortedIds.length) {
+      throw new Errors(HttpCode.BAD_REQUEST, Message.CHOOSE_FLAVOR);
+    }
+    if (!flavors.every((f) => f.flavorCollection === flavorCollection)) {
+      throw new Errors(HttpCode.BAD_REQUEST, Message.CHOOSE_FLAVOR);
+    }
+
+    // signature
+    const signature = this.buildSignature(
+      { flavorCollection, size, dishType },
+      uniqueSortedIds.join(",")
+    );
+
+    // reuse if exists
+    const existing = await this.customeOrderModel.findOne({ signature }).lean();
+    if (existing) return this.toResponse(existing);
+
+    // compute price
+    const unitPrice = money(
+      BASE_BY_SIZE[size as IceCreamSize] +
+        DISH_UPCHARGE[dishType as ProductDish]
+    );
+
+    // name + image
+    const primary = flavors[0];
+    const displayName = `${size} ${flavorCollection} in ${dishType}${
+      primary ? " - " + primary.flavorName : ""
+    }`;
+    const image = primary?.flavorImage || "img/default.png";
+
+    // insert with race handling
     try {
-      const newOrder = await OrderModel.create({
-        orderTotal: amount + delivery,
-        orderDelivery: delivery,
-        memberId,
+      const created = await this.customeOrderModel.create({
+        signature,
+        flavorCollection,
+        size,
+        dishType,
+        flavorIds: flavorObjectIds,
+        unitPrice,
+        displayName,
+        image,
+        pricingVersion: PRICING_VERSION,
       });
-
-      const orderId = newOrder._id;
-      await this.recordCustomOrderItem(orderId, input);
-
-      return newOrder;
-    } catch (err) {
-      console.log("error, model: createCustomOrder:", err);
+      return this.toResponse(created.toObject());
+    } catch (err: any) {
+      if (err?.code === 11000) {
+        const doc = await this.customeOrderModel.findOne({ signature }).lean();
+        if (doc) return this.toResponse(doc);
+      }
       throw new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED);
     }
   }
 
-  private async recordCustomOrderItem(orderId: ObjectId, input: CustomOrderItemInput[]): Promise<void> {
-    const promisedList = input.map(async (item) => {
-      item.orderId = orderId;
-      item.productId = shapeIntoMongooseObjectId(item.productId);
-      await this.customeOrderItem.create(item);
-      return "OK";
-    });
+  private toResponse(doc: any): CustomBuildResponse {
+    const priceNum =
+      typeof doc.unitPrice === "number"
+        ? doc.unitPrice
+        : parseFloat(doc.unitPrice?.toString?.() ?? "0");
 
-    await Promise.all(promisedList);
+    return {
+      _id: doc._id,
+      unitPrice: priceNum,
+      displayName: doc.displayName,
+      image: doc.image,
+      signature: doc.signature,
+    };
   }
 }
 

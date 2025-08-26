@@ -12,16 +12,10 @@ export enum ProductSize {
   LARGE = "LARGE",
 }
 
-export enum GelatoSize {
+export enum IceCreamSize {
   TWO = "TWO",
   THREE = "THREE",
   FIVE = "FIVE",
-}
-
-export enum IceCreamSize {
-  SINGLE = "SINGLE",
-  COMBO = "COMBO",
-  TRIO = "TRIO",
 }
 
 export enum CakeSize {

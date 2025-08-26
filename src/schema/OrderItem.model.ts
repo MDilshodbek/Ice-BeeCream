@@ -1,6 +1,5 @@
 import mongoose, { Schema } from "mongoose";
 import {
-  GelatoSize,
   IceCreamSize,
   ProductDish,
 } from "../libs/enums/product.enum";
@@ -28,10 +27,6 @@ const orderItemSchema = new Schema(
     },
 
     // For customizeable orders
-    gelatoSize: {
-      type: String,
-      enum: GelatoSize,
-    },
 
     iceCreamSize: {
       type: String,

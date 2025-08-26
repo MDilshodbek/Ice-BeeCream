@@ -21,7 +21,7 @@ const productController: T = {};
 
 // SPA
 
-productController.getProducts = async (req: Request, res: Response) => {
+productController.getProducts = async (req: ExtendedRequest, res: Response) => {
   try {
     console.log("getProducts");
 
@@ -37,6 +37,8 @@ productController.getProducts = async (req: Request, res: Response) => {
       minPrice,
       maxPrice,
     } = req.query;
+    const memberId = req.member?._id ?? null;
+
 
     const inquiry: ProductInquiry = {
       order: String(order),
@@ -53,7 +55,7 @@ productController.getProducts = async (req: Request, res: Response) => {
     if (minPrice) inquiry.minPrice = Number(minPrice);
     if (maxPrice) inquiry.maxPrice = Number(maxPrice);
 
-    const result = await productService.getProducts(inquiry);
+    const result = await productService.getProducts(memberId, inquiry);
 
     res.status(HttpCode.OK).json(result);
   } catch (error) {

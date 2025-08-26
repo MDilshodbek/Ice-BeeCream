@@ -32,17 +32,25 @@ router.get("/member/top-users", memberController.getTopUsers);
 
 // Product
 
-router.get("/product/all", productController.getProducts);
+router.get(
+  "/product/all",
+  memberController.retrieveAuth,
+  productController.getProducts
+);
 router.get(
   "/product/:id",
   memberController.retrieveAuth,
   productController.getProduct
 );
 
-router.get("/flavors/all", productController.getFlavors);
+router.get(
+  "/flavors/all",
+  memberController.retrieveAuth,
+  productController.getFlavors
+);
 
 router.post(
-  "/product/:id/like",
+  "/product/like/:id",
   memberController.verifyAuth,
   productController.likeTargetProduct
 );
@@ -56,9 +64,9 @@ router.post(
 );
 
 router.post(
-  "/custom-order/create",
-  memberController.verifyAuth, 
-  orderController.createCustomOrder
+  "/custom/build",
+  memberController.verifyAuth,
+  orderController.buildCustom
 );
 
 router.get(

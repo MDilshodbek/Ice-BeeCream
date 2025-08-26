@@ -3,7 +3,9 @@ import { OrderStatus } from "../libs/enums/order.enum";
 
 const orderSchema = new Schema(
   {
-    orderTotal: { type: Number, required: true },
+    orderSubTotal: { type: Number, required: true },
+    orderGrandTotal: { type: Number, required: true },
+    orderDiscount: { type: Number, required: true },
     orderDelivery: { type: Number, required: true },
     orderStatus: {
       type: String,

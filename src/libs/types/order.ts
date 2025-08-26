@@ -11,7 +11,9 @@ export interface OrderItemInput {
 
 export interface Order {
   _id: ObjectId;
-  orderTotal: number;
+  orderSubTotal: number;
+  orderGrandTotal: number;
+  orderDiscount: number;
   orderDelivery: number;
   orderStatus: OrderStatus;
   memberId: ObjectId;
@@ -39,8 +41,8 @@ export interface OrderInquiry {
 }
 
 export interface OrderUpdateInput {
-    orderId: string;
-    orderStatus: OrderStatus;
+  orderId: string;
+  orderStatus: OrderStatus;
 }
 
 export interface CustomOrderItemInput {

@@ -1,14 +1,22 @@
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&display=swap");
+
+body {
+  height: 100%;
+  margin: 0;
+  background: linear-gradient(to bottom, #683292, #683292),
+    url("https://www.transparenttextures.com/patterns/asfalt-light.png");
+  background-blend-mode: overlay;
+}
+
 .products-container {
   position: relative;
   width: auto;
   height: auto;
-  min-height: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: linear-gradient(to bottom, #683292, #ffffff),
-    url("https://www.transparenttextures.com/patterns/asfalt-light.png");
-  background-blend-mode: overlay;
+  font-family: "Archivo", sans-serif;
 }
 
 .products-container a {
@@ -27,10 +35,50 @@
 .products-container .navigation-menu {
   position: absolute;
   z-index: 10000;
-  top: 1%;
   color: #efefee;
   font-size: 40px;
   font-family: monospace;
+}
+/* Toggle Buttons Section */
+.menu-toggle-section {
+  position: relative;
+  margin: 120px 0 40px 0;
+  display: flex;
+  gap: 20px;
+  z-index: 100;
+}
+
+.toggle-btn {
+  padding: 12px 32px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: #ffffff;
+  font-family: "Archivo", sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.toggle-btn.active {
+  background: #f83d8e;
+  border-color: #f83d8e;
+  box-shadow: 0 6px 20px rgba(248, 61, 142, 0.4);
+}
+
+.toggle-btn.active:hover {
+  background: #e6368a;
+  box-shadow: 0 8px 25px rgba(248, 61, 142, 0.5);
 }
 
 .products-container .cafe-menu-frame {
@@ -38,7 +86,6 @@
   padding-bottom: 80px;
   width: 100%;
   height: auto;
-
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -46,7 +93,6 @@
 
 .products-container .cafe-menu-frame .board {
   position: relative;
-  margin-top: 100px;
   width: 1320px;
   height: auto;
   display: flex;
@@ -54,6 +100,7 @@
   align-items: center;
 }
 
+/* Glassmorphism Table Container */
 .products-container .board .dishes-table {
   position: relative;
   width: 100%;
@@ -62,6 +109,71 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  /* Glassmorphism effect */
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  padding: 30px;
+
+  transition: all 0.3s ease;
+}
+
+.products-container .board .dishes-table:hover {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.25);
+}
+
+/* Hide sections by default */
+.cafe-menu-section,
+.flavor-list-section {
+  display: none;
+  width: 100%;
+}
+
+.cafe-menu-section.active,
+.flavor-list-section.active {
+  display: block;
+}
+
+/* Table Styling */
+.products-container table {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.products-container table thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.products-container table th {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 18px 15px;
+  border: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: "Archivo", sans-serif;
+}
+
+.products-container table td {
+  padding: 15px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  color: #333;
+  font-weight: 500;
+  font-family: "Archivo", sans-serif;
+}
+
+.products-container table tbody tr:hover {
+  background: rgba(248, 61, 142, 0.05);
 }
 
 .products-container .board .dish-container {
@@ -69,177 +181,149 @@
   margin-top: 20px;
   width: 100%;
   height: auto;
-
-  /* TODO: UNCOMMENT */
   display: none;
   flex-direction: column;
   align-items: center;
+
+  /* Glassmorphism for forms */
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  padding: 30px;
 }
 
 .products-container .new-dish-txt {
-  font-family: "Source Serif Pro";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 30px;
-  line-height: 25px;
+  font-family: "Archivo", sans-serif;
+  font-weight: 700;
+  font-size: 28px;
   color: #ffffff;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
 }
 
 .products-container .long-input {
   position: relative;
-  margin-top: 25px;
+  margin-top: 20px;
   width: 100%;
   height: auto;
   display: flex;
   flex-direction: column;
 }
 
-.products-container .long-input label {
-  font-family: "Source Serif Pro";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 25px;
-  color: #ffffff;
+.products-container .long-input label,
+.products-container .half-input label {
+  font-family: "Archivo", sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 8px;
 }
 
-.products-container .long-input input {
-  position: relative;
-  margin-top: 10px;
-  padding-left: 20px;
+.products-container .long-input input,
+.products-container .half-input input,
+.products-container .long-input select,
+.products-container .half-input select,
+.products-container .long-input textarea {
+  margin-top: 8px;
+  padding: 0 16px;
   width: 100%;
-  height: 54px;
-  border: none;
-  background: #f7f7f7;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  border-radius: 5px;
-  font-family: "GT Walsheim Pro";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 15px;
-  line-height: 26px;
-  color: #4f547b;
+  height: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  color: #000;
+  font-family: "Archivo", sans-serif;
+  font-size: 16px;
+  outline: none;
+  transition: all 0.3s ease;
 }
 
 .products-container .long-input textarea {
-  position: relative;
-  margin-top: 10px;
-  padding: 20px;
-  width: 100%;
-  height: 200px;
-  border: none;
-  background: #f7f7f7;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  border-radius: 5px;
-  font-family: "GT Walsheim Pro";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 15px;
-  line-height: 26px;
-  color: #4f547b;
+  height: 120px;
+  padding: 16px;
+  resize: vertical;
 }
 
-.products-container .half-input select {
-  position: relative;
-  margin-top: 10px;
-  padding: 0px 20px;
-  width: 100%;
-  height: 55px;
-  display: flex;
-  border: none;
-  background: #f7f7f7;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  border-radius: 5px;
-  font-family: "GT Walsheim Pro";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 15px;
-  line-height: 26px;
-  color: #4f547b;
-}
-
-.products-container select:focus {
-  min-width: 100%;
-  width: auto;
-}
-
-.products-container .long-input select {
-  position: relative;
-  margin-top: 10px;
-  padding: 0px 20px;
-  width: 100%;
-  height: 55px;
-  display: flex;
-  border: none;
-  background: #f7f7f7;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  border-radius: 5px;
-  font-family: "GT Walsheim Pro";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 15px;
-  line-height: 26px;
-  color: #4f547b;
+.products-container .long-input input:focus,
+.products-container .half-input input:focus,
+.products-container .long-input select:focus,
+.products-container .half-input select:focus,
+.products-container .long-input textarea:focus {
+  border-color: #f83d8e;
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 15px rgba(248, 61, 142, 0.2);
 }
 
 .products-container .dish-container .half-input-frame {
   position: relative;
-  margin-top: 25px;
+  margin-top: 20px;
   width: 100%;
   height: auto;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  gap: 20px;
 }
 
 .products-container .half-input-frame .half-input {
   position: relative;
-  width: 49%;
+  flex: 1;
   height: auto;
   display: flex;
   flex-direction: column;
 }
 
-.products-container .half-input label {
-  font-family: "Source Serif Pro";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 25px;
-  color: #ffffff;
-}
-
-.products-container .half-input input {
-  position: relative;
-  margin-top: 10px;
-  padding-left: 20px;
-  width: 100%;
-  height: 54px;
-  border: none;
-  background: #f7f7f7;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  border-radius: 5px;
-}
-
+/* Image Upload Styling */
 .products-container .media-frame {
   position: relative;
-  margin-top: 10px;
+  margin-top: 15px;
   width: 100%;
-  height: 250px;
+  height: 200px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  gap: 15px;
+}
+
+.products-container .flavorMedia-frame {
+  position: relative;
+  margin-top: 15px;
+  width: 200px;
+  height: 200px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 15px;
 }
 
 .products-container .media-frame .upload-img-box {
   position: relative;
-  width: 19%;
+  flex: 1;
   height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.products-container .media-frame .flavorUpload-img-box {
+  width: 200px;
+}
+
+.products-container .upload-img-box:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #f83d8e;
 }
 
 .products-container .upload-img-box img {
@@ -248,6 +332,7 @@
   height: 100%;
   display: block;
   border-radius: 10px;
+  object-fit: cover;
 }
 
 .products-container .img-frame {
@@ -255,23 +340,22 @@
   width: 100%;
   display: flex;
   flex-direction: column;
+  margin-top: 20px;
 }
 
 .products-container .img-frame label {
-  margin-top: 30px;
-  font-family: "Source Serif Pro";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 25px;
-  color: #ffffff;
+  font-family: "Archivo", sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 10px;
 }
 
 .products-container #file {
   opacity: 0;
   border: none;
   border-radius: 10px;
-  background: grey;
+  background: transparent;
   position: absolute;
   left: 0px;
   width: 100%;
@@ -280,90 +364,84 @@
   cursor: pointer;
 }
 
+/* Button Styling */
 .products-container .operation-buttons {
-  margin-top: 20px;
+  margin-top: 30px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.products-container .btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  font-family: "Archivo", sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 120px;
+}
+
+.products-container .btn-primary {
+  background: #f83d8e;
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(248, 61, 142, 0.3);
+}
+
+.products-container .btn-primary:hover {
+  background: #e6368a;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(248, 61, 142, 0.4);
+}
+
+.products-container .btn-success {
+  background: #28a745;
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+}
+
+.products-container .btn-success:hover {
+  background: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+}
+
+.products-container .btn-danger {
+  background: #dc3545;
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.3);
+}
+
+.products-container .btn-danger:hover {
+  background: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
 }
 
 .products-container .spec-select {
   position: relative;
-  padding: 0px 7px;
-  height: 27px;
-  background: #ffffff;
-  border: 1px solid #dddddd;
+  padding: 8px 12px;
+  height: 35px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  font-family: "GT Walsheim Pro";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 15px;
-  line-height: 26px;
-  color: #4f547b;
-}
-
-.products-container table td,
-table th {
-  text-align: center;
-  vertical-align: middle;
-}
-
-.products-container .switch {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 20px;
-}
-
-.products-container .switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.products-container .slider {
-  position: absolute;
+  font-family: "Archivo", sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  color: #333;
   cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: 0.4s;
-  transition: 0.4s;
+  transition: all 0.3s ease;
 }
 
-.products-container .slider:before {
-  position: absolute;
-  content: "";
-  height: 14px;
-  width: 14px;
-  left: 6px;
-  bottom: 3.5px;
-  background-color: white;
-  -webkit-transition: 0.4s;
-  transition: 0.4s;
-}
-
-.products-container input:checked + .slider {
-  background-color: #2196f3;
-}
-
-.products-container input:focus + .slider {
-  box-shadow: 0 0 1px #2196f3;
-}
-
-.products-container input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
-}
-
-.products-container .slider.round {
-  border-radius: 34px;
-}
-
-.products-container .slider.round:before {
-  border-radius: 50%;
+.products-container .spec-select:focus {
+  border-color: #f83d8e;
+  box-shadow: 0 0 10px rgba(248, 61, 142, 0.2);
+  outline: none;
 }

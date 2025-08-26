@@ -1,7 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import {
   CakeSize,
-  GelatoSize,
   ProductDish,
   ProductCollection,
   ProductSize,
@@ -48,16 +47,10 @@ const productSchema = new Schema(
       default: ProductSize.REGULAR,
     },
 
-    gelatoSize: {
-      type: String,
-      enum: GelatoSize,
-      default: GelatoSize.TWO,
-    },
-
     iceCreamSize: {
       type: String,
       enum: IceCreamSize,
-      default: IceCreamSize.SINGLE,
+      default: IceCreamSize.TWO,
     },
 
     cakeSize: {

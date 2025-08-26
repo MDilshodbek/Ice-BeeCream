@@ -7,7 +7,7 @@ body {
   font-family: "Rubik", sans-serif;
   margin: 0;
   padding: 0.5rem;
-  background: linear-gradient(to bottom, #683292, #ffffff),
+  background: linear-gradient(to bottom, #683292, #683292),
     url("https://www.transparenttextures.com/patterns/asfalt-light.png");
   background-blend-mode: overlay;
 }
@@ -54,6 +54,43 @@ article {
   border-radius: 4em;
   max-width: calc(100% - 2rem);
   filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));
+}
+
+.home-container .google-login {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.home-container .google-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 20px;
+
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-family: "Archivo", sans-serif;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.25s ease, transform 0.1s ease;
+}
+
+.home-container .google-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px; /* slight rounding */
+  background: #fff;
+  padding: 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.home-container .google-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
 }
 
 @media (orientation: portrait) {

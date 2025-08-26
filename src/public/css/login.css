@@ -1,142 +1,163 @@
-.login-container {
-  position: relative;
-  width: 100%;
+body {
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(to bottom, #683292, #ffffff),
+  margin: 0;
+  background-image: linear-gradient(120deg, #683292, #6440fb, #f83d8e, #ffd1e8);
+  background-size: 320% 320%;
+  background: linear-gradient(to bottom, #683292, #683292),
     url("https://www.transparenttextures.com/patterns/asfalt-light.png");
   background-blend-mode: overlay;
 }
 
-.login-container a {
-  text-decoration: none;
-  color: black;
-}
+/* Wrapper for split layout */
+.login-wrapper {
+  max-width: 1320px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 40px 24px;
 
-.login-container .login-frame {
-  position: relative;
-  width: 420px;
-  height: auto;
   display: flex;
-  flex-direction: column;
-  border-radius: 10px;
-  background: #ffffff;
-  padding: 25px;
-}
-
-.login-container .login-frame .login-top {
-  position: relative;
-  width: 100%;
-  height: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.login-container .login-top span {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 700;
-  font-size: 30px;
-  line-height: 34px;
-}
-
-.login-container .login-top p {
-  margin-top: 15px;
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 15px;
-  line-height: 26px;
-}
-
-.login-container .login-top div {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 15px;
-  line-height: 26px;
-}
-
-.login-container .login-frame .login-input-frame {
-  position: relative;
-  width: 100%;
-  height: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.login-container .login-input-container {
-  position: relative;
-  margin-top: 15px;
-  width: 100%;
-  height: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.login-container .login-input-container label {
-  margin-bottom: 0px;
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 18px;
-}
-
-.login-container .login-input-container input {
-  position: relative;
-  margin-top: 10px;
-  padding-left: 20px;
-  width: 100%;
-  height: 55px;
-  background: #f6f5f5;
-  border: 1px solid #dddddd;
-  border-radius: 8px;
-}
-
-.login-container .login-frame .login-btn {
-  position: relative;
-  margin-top: 25px;
-  width: 100%;
-  height: 70px;
-  display: flex;
-  justify-content: center;
   align-items: center;
-  background: #33a0ff;
+  justify-content: center;
+  gap: 28px;
+}
+
+/* Right side glassmorphism form */
+.login-container {
+  flex: 0 0 440px;
+  display: block; /* ensure it acts as a block card */
+  color: #ffffff;
+
+  /* Glass look */
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+
+  padding: 28px;
+}
+
+/* Inner frame (kept for structure) */
+.login-frame {
+  width: 100%;
+}
+
+/* Top area */
+.enter-title {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1.2;
+  font-family: "Archivo", sans-serif;
+  margin-bottom: 8px;
+}
+.nav-links,
+.login-top p,
+.login-top div {
+  margin: 0;
+  font-family: "Archivo", sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  opacity: 0.95;
+}
+.login-container a {
+  color: #ffd1e8; /* readable on glass */
+  text-decoration: none;
+}
+.login-container a:hover {
+  text-decoration: underline;
+}
+
+/* Inputs */
+.login-input-frame {
+  margin-top: 18px;
+  display: grid;
+  gap: 16px;
+}
+.login-input-container {
+  display: grid;
+  gap: 8px;
+}
+
+.login-input-container label {
+  font-family: "Archivo", sans-serif;
+  font-size: 14px;
+  color: #ffffff;
+  opacity: 0.9;
+}
+
+.login-input-container input {
+  height: 54px;
+  padding: 0 16px;
+  font-size: 16px;
   border-radius: 10px;
-  font-family: "Nunito";
-  font-style: normal;
-  font-weight: 800;
-  font-size: 24px;
-  line-height: 33px;
-  letter-spacing: -0.02em;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  outline: none;
+
+  background: rgba(255, 255, 255, 0.22);
   color: #ffffff;
 }
-
-/* Background animation */
-@-webkit-keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+.login-input-container input::placeholder {
+  color: rgba(255, 255, 255, 0.85);
+}
+.login-input-container input:focus {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
 }
 
-@keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+/* Button */
+.login-btn {
+  margin-top: 20px;
+  width: 100%;
+  height: 56px;
+
+  border: none;
+  border-radius: 12px;
+  font-family: "Archivo", sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+
+  background: #f83d8e;
+  color: #ffffff;
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.2s ease;
+  box-shadow: 0 8px 24px rgba(248, 61, 142, 0.35);
 }
+.login-btn:active {
+  transform: translateY(1px);
+}
+.login-btn:hover {
+  box-shadow: 0 10px 28px rgba(248, 61, 142, 0.45);
+}
+.google-login {
+  margin-top: 16px;
+  text-align: center;
+}
+.google-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 20px;
+
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-family: "Archivo", sans-serif;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.25s ease, transform 0.1s ease;
+}
+.google-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px; /* slight rounding */
+  background: #fff;
+  padding: 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+

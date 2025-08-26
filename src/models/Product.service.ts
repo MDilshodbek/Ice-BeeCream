@@ -20,6 +20,7 @@ import {
 } from "../libs/types/flavor";
 import FlavorModel from "../schema/Flavor.model";
 import LikeService from "./Like.service";
+import { lookupAuthMemberLiked } from "../libs/config";
 
 class ProductService {
   private readonly productModel;
@@ -100,57 +101,43 @@ class ProductService {
 
   // SPA
 
-  public async getProducts(inquiry: ProductInquiry): Promise<Product[]> {
-    console.log("inquiry:", inquiry);
-    const match: T = { productStatus: ProductStatus.PROCESS };
+  public async getProducts(
+    memberId: ObjectId | null,
+    inquiry: ProductInquiry
+  ): Promise<Product[]> {
+    const match: any = { productStatus: ProductStatus.PROCESS };
 
-    // Category filter
-    if (inquiry.productCollection) {
+    if (inquiry.productCollection)
       match.productCollection = inquiry.productCollection;
-    }
-
-    // Search filter (product name)
-    if (inquiry.search) {
+    if (inquiry.search)
       match.productName = { $regex: new RegExp(inquiry.search, "i") };
-    }
+    if (inquiry.productCollection === "CAKE" && inquiry.cakeSize)
+      match.cakeSize = inquiry.cakeSize;
+    else if (inquiry.productSize) match.productSize = inquiry.productSize;
+    if (inquiry.productDish) match.productDish = inquiry.productDish;
 
-    // Size filter
-    if (inquiry.productCollection === "CAKE" && inquiry.cakeSize) {
-      match.cakeSize = inquiry.cakeSize; // use cakeSize for CAKE
-    } else if (inquiry.productSize) {
-      match.productSize = inquiry.productSize; // use productSize for others
-    }
-
-    // Dish type filter
-    if (inquiry.productDish) {
-      match.productDish = inquiry.productDish;
-    }
-
-    // Price range filter
     if (inquiry.minPrice !== undefined || inquiry.maxPrice !== undefined) {
       match.productPrice = {};
-      if (inquiry.minPrice !== undefined) {
+      if (inquiry.minPrice !== undefined)
         match.productPrice.$gte = inquiry.minPrice;
-      }
-      if (inquiry.maxPrice !== undefined) {
+      if (inquiry.maxPrice !== undefined)
         match.productPrice.$lte = inquiry.maxPrice;
-      }
     }
 
-    // Sorting logic
-    const sort: T =
+    const sort: any =
       inquiry.order === "productPrice"
-        ? { [inquiry.order]: 1 } // Ascending for price
-        : { [inquiry.order]: -1 }; // Descending for others (new, likes)
+        ? { [inquiry.order]: 1 }
+        : { [inquiry.order]: -1 };
 
-    const result = await this.productModel
-      .aggregate([
-        { $match: match },
-        { $sort: sort },
-        { $skip: (inquiry.page * 1 - 1) * inquiry.limit },
-        { $limit: inquiry.limit * 1 },
-      ])
-      .exec();
+    const pipeline = [
+      { $match: match },
+      { $sort: sort },
+      { $skip: (inquiry.page - 1) * inquiry.limit },
+      { $limit: inquiry.limit },
+      ...lookupAuthMemberLiked(memberId),
+    ];
+
+    const result = await this.productModel.aggregate(pipeline).exec();
 
     if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
 
@@ -160,17 +147,15 @@ class ProductService {
   public async getProduct(
     memberId: ObjectId | null,
     id: string
-  ): Promise<Product & { isLiked?: boolean }> {
+  ): Promise<Product> {
     const productId = shapeIntoMongooseObjectId(id);
 
     const result = await this.productModel
       .findOne({ _id: productId, productStatus: ProductStatus.PROCESS })
-      .lean() // ✅ returns plain JS object
+      .lean()
       .exec();
 
     if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
-
-    let isLiked = false;
 
     if (memberId) {
       const input: LikeInput = {
@@ -179,17 +164,18 @@ class ProductService {
         likeGroup: LikeGroup.PRODUCT,
       };
 
-      const existLike = await this.likeService.checkLikeExistence(input);
-      isLiked = !!existLike;
+      result.meLiked = await this.likeService.checkLikeExistence(input);
+    } else {
+      result.meLiked = false;
     }
 
-    return { ...result, isLiked };
+    return result;
   }
 
   public async likeTargetProduct(
     memberId: ObjectId,
     likeRefId: ObjectId
-  ): Promise<{ isLiked: boolean; productLikes: number }> {
+  ): Promise<Product & { meLiked: boolean }> {
     const target: Product = await this.productModel
       .findOne({ _id: likeRefId, productStatus: ProductStatus.PROCESS })
       .exec();
@@ -197,19 +183,19 @@ class ProductService {
     if (!target) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
 
     const input: LikeInput = {
-      memberId: memberId,
-      likeRefId: likeRefId,
+      memberId,
+      likeRefId,
       likeGroup: LikeGroup.PRODUCT,
     };
 
-    // ✅ Toggle like
+    // Toggle like (increments/decrements)
     const modifier: number = await this.likeService.toggleLike(input);
 
-    // ✅ Update like count
+    // Update like count
     const updatedProduct = await this.propertyStatsEditor({
       _id: likeRefId,
       targetKey: "productLikes",
-      modifier: modifier,
+      modifier,
     });
 
     if (!updatedProduct) {
@@ -219,9 +205,12 @@ class ProductService {
       );
     }
 
+    // Check if user currently likes the product
+    const meLiked = await this.likeService.checkLikeExistence(input);
+
     return {
-      isLiked: modifier === 1,
-      productLikes: updatedProduct.productLikes,
+      ...updatedProduct,
+      meLiked,
     };
   }
 
@@ -233,6 +222,7 @@ class ProductService {
         { $inc: { [targetKey]: modifier } },
         {
           new: true,
+          lean: true,
         }
       )
       .exec();
