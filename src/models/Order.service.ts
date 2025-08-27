@@ -28,7 +28,6 @@ import {
   ProductDish,
 } from "../libs/enums/product.enum";
 
-/** ===== Business rules & helpers ===== */
 const SIZE_SLOTS: Record<IceCreamSize, number> = {
   [IceCreamSize.TWO]: 2,
   [IceCreamSize.THREE]: 3,
@@ -150,6 +149,7 @@ class OrderService {
             as: "productData",
           },
         },
+
         {
           $lookup: {
             from: customColl,
@@ -158,7 +158,6 @@ class OrderService {
             as: "customData",
           },
         },
-        // Make customs look exactly like products for the UI
         {
           $addFields: {
             productData: {
@@ -171,12 +170,10 @@ class OrderService {
                     in: {
                       _id: "$$c._id",
                       productName: "$$c.displayName",
-                      // IMPORTANT: array of strings, not objects
-                      productImages: ["$$c.image"],
-                      // Keep fields the UI reads below
+                      productImages: ["$$c.image"], // UI uses productImages[0]
                       productDish: "$$c.dishType",
                       productSize: "$$c.size",
-                      productCollection: "$$c.flavorCollection",
+                      productCollection: "ICECREAM",
                       isCustom: true,
                     },
                   },
@@ -241,20 +238,31 @@ class OrderService {
   public async buildCustom(
     input: CustomBuildRequest
   ): Promise<CustomBuildResponse> {
-    // Narrow undefined optionals for safe indexing
     const { flavorCollection, size, dishType, flavorIds } = input;
     if (!flavorCollection || !size || !dishType || !Array.isArray(flavorIds)) {
       throw new Errors(HttpCode.BAD_REQUEST, Message.CHOOSE_FLAVOR);
     }
 
-    // normalize ids: unique + sort
-    const uniqueSortedIds = [...new Set(flavorIds)].sort();
+    // 1) Keep user’s pick order for name/image
+    const orderedIds: string[] = [];
+    const seen = new Set<string>();
+    for (const id of (flavorIds ?? []).map(String)) {
+      if (!seen.has(id)) {
+        seen.add(id);
+        orderedIds.push(id);
+      }
+    }
+
+    // 2) Sorted unique for signature/validation
+    const uniqueSortedIds: string[] = [
+      ...new Set((flavorIds ?? []).map(String)),
+    ].sort();
     const required = SIZE_SLOTS[size as IceCreamSize];
     if (!required || uniqueSortedIds.length !== required) {
       throw new Errors(HttpCode.BAD_REQUEST, Message.CHOOSE_FLAVOR);
     }
 
-    // validate flavors
+    // DB fetch
     const flavorObjectIds = uniqueSortedIds.map((id) =>
       shapeIntoMongooseObjectId(id)
     );
@@ -272,50 +280,66 @@ class OrderService {
       throw new Errors(HttpCode.BAD_REQUEST, Message.CHOOSE_FLAVOR);
     }
 
-    // signature
+    // Signature (stable)
     const signature = this.buildSignature(
       { flavorCollection, size, dishType },
       uniqueSortedIds.join(",")
     );
 
-    // reuse if exists
-    const existing = await this.customeOrderModel.findOne({ signature }).lean();
-    if (existing) return this.toResponse(existing);
+    // Compute price/name/image
+    const unitPrice =
+      Math.round(
+        (BASE_BY_SIZE[size as IceCreamSize] +
+          DISH_UPCHARGE[dishType as ProductDish]) *
+          100
+      ) / 100;
 
-    // compute price
-    const unitPrice = money(
-      BASE_BY_SIZE[size as IceCreamSize] +
-        DISH_UPCHARGE[dishType as ProductDish]
+    const idToName = new Map<string, string>(
+      flavors.map((f) => [String(f._id), f.flavorName])
+    );
+    const idToImg = new Map<string, string>(
+      flavors.map((f) => [String(f._id), f.flavorImage])
     );
 
-    // name + image
-    const primary = flavors[0];
-    const displayName = `${size} ${flavorCollection} in ${dishType}${
-      primary ? " - " + primary.flavorName : ""
-    }`;
-    const image = primary?.flavorImage || "img/default.png";
+    const flavorNames = orderedIds
+      .map((id) => idToName.get(id))
+      .filter((n): n is string => Boolean(n));
 
-    // insert with race handling
-    try {
-      const created = await this.customeOrderModel.create({
-        signature,
-        flavorCollection,
-        size,
-        dishType,
-        flavorIds: flavorObjectIds,
-        unitPrice,
-        displayName,
-        image,
-        pricingVersion: PRICING_VERSION,
-      });
-      return this.toResponse(created.toObject());
-    } catch (err: any) {
-      if (err?.code === 11000) {
-        const doc = await this.customeOrderModel.findOne({ signature }).lean();
-        if (doc) return this.toResponse(doc);
-      }
-      throw new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED);
-    }
+    // 👉 Include ALL flavor names in order picked
+    const displayName = `${flavorCollection}${
+      flavorNames.length ? " - " + flavorNames.join(", ") : ""
+    }`;
+
+    // First chosen flavor’s image
+    const image =
+      idToImg.get(orderedIds[0]) ||
+      flavors.find((f) => String(f._id) === orderedIds[0])?.flavorImage ||
+      "img/default.png";
+
+    // Upsert and also UPDATE name/image if the doc already exists (fixes old short names)
+    const doc = await this.customeOrderModel
+      .findOneAndUpdate(
+        { signature },
+        {
+          $setOnInsert: {
+            signature,
+            flavorCollection,
+            size,
+            dishType,
+            flavorIds: flavorObjectIds,
+            unitPrice,
+            pricingVersion: PRICING_VERSION,
+          },
+          $set: {
+            displayName,
+            image,
+          },
+        },
+        { upsert: true, new: true }
+      )
+      .lean();
+
+    return this.toResponse(doc);
   }
 
   private toResponse(doc: any): CustomBuildResponse {
@@ -325,7 +349,7 @@ class OrderService {
         : parseFloat(doc.unitPrice?.toString?.() ?? "0");
 
     return {
-      _id: doc._id,
+      _id: doc._id, // OK: JSON serializes to string for client
       unitPrice: priceNum,
       displayName: doc.displayName,
       image: doc.image,
