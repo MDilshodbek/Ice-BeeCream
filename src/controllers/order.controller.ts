@@ -5,7 +5,6 @@ import { Response } from "express";
 import OrderService from "../models/Order.service";
 import {
   OrderInquiry,
-  OrderItemInput,
   OrderUpdateInput,
 } from "../libs/types/order";
 import { OrderStatus } from "../libs/enums/order.enum";
@@ -69,16 +68,9 @@ orderController.updateOrder = async (req: ExtendedRequest, res: Response) => {
 
 orderController.buildCustom = async (req: Request, res: Response) => {
   try {
+    console.log("buildCustom");
     const body = req.body as CustomBuildRequest;
-    if (
-      !body ||
-      !body.flavorCollection ||
-      !body.size ||
-      !body.dishType ||
-      !Array.isArray(body.flavorIds)
-    ) {
-      return res.status(400).json({ message: "Invalid payload" });
-    }
+
     const result = await orderService.buildCustom(body);
     return res.json(result);
   } catch (err) {

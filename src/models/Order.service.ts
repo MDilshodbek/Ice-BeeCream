@@ -1,6 +1,5 @@
-// services/Order.service.ts
 import crypto from "crypto";
-import { Types, ObjectId } from "mongoose";
+import { ObjectId } from "mongoose";
 
 import OrderItemModel from "../schema/OrderItem.model";
 import OrderModel from "../schema/Order.model";
@@ -47,9 +46,6 @@ const DISH_UPCHARGE: Record<ProductDish, number> = {
 
 const PRICING_VERSION = 1;
 
-const money = (n: number) => Math.round(n * 100) / 100;
-/** ==================================== */
-
 class OrderService {
   private readonly orderModel;
   private readonly orderItemModel;
@@ -62,7 +58,6 @@ class OrderService {
     this.orderItemModel = OrderItemModel;
     this.customeOrderModel = customOrderModel;
     this.flavorModel = FlavorModel;
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const MemberService = require("./Member.service").default;
     this.memberService = new MemberService();
   }
@@ -115,8 +110,6 @@ class OrderService {
     console.log("orderItemsState:", orderItemsState);
   }
 
-  // Order.service.ts
-  // Order.service.ts
   public async getMyOrders(
     member: Member,
     inquiry: OrderInquiry
@@ -220,8 +213,6 @@ class OrderService {
 
     return result;
   }
-
-  /** ---------- Custom build (SKU) ---------- */
 
   private buildSignature(
     input: { flavorCollection: string; size: string; dishType: string },
@@ -349,7 +340,7 @@ class OrderService {
         : parseFloat(doc.unitPrice?.toString?.() ?? "0");
 
     return {
-      _id: doc._id, // OK: JSON serializes to string for client
+      _id: doc._id, 
       unitPrice: priceNum,
       displayName: doc.displayName,
       image: doc.image,
