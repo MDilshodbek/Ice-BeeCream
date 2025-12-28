@@ -59,7 +59,6 @@ productController.getProducts = async (req: ExtendedRequest, res: Response) => {
 
     res.status(HttpCode.OK).json(result);
   } catch (error) {
-    console.log("err getProducts:", error);
     if (error instanceof Errors) res.status(error.code).json(error);
     else res.status(Errors.standard.code).json(Errors.standard);
   }
@@ -75,7 +74,6 @@ productController.getProduct = async (req: ExtendedRequest, res: Response) => {
 
     res.status(HttpCode.OK).json(result);
   } catch (error) {
-    console.log("err getProduct:", error);
     if (error instanceof Errors) res.status(error.code).json(error);
     else res.status(Errors.standard.code).json(Errors.standard);
   }
@@ -98,7 +96,6 @@ productController.getFlavors = async (req: Request, res: Response) => {
 
     res.status(HttpCode.OK).json(result);
   } catch (error) {
-    console.log("err getFlavors:", error);
     if (error instanceof Errors) res.status(error.code).json(error);
     else res.status(Errors.standard.code).json(Errors.standard);
   }
@@ -116,7 +113,6 @@ productController.likeTargetProduct = async (
 
     res.status(HttpCode.OK).json(result);
   } catch (error) {
-    console.log("err addLike:", error);
     if (error instanceof Errors) res.status(error.code).json(error);
     else res.status(Errors.standard.code).json(Errors.standard);
   }
@@ -146,7 +142,6 @@ productController.createNewProduct = async (
       `<script> alert("Successful creation"); window.location.replace('/adminRouter/product/all')</script>`
     );
   } catch (error) {
-    console.log("err createNewProduct:", error);
     const message =
       error instanceof Errors ? error.message : Message.SOMETHING_WENT_WRONG;
     res.send(
@@ -162,12 +157,10 @@ productController.updateChoosenProduct = async (
   try {
     console.log("updateChoosenProduct");
     const id = req.params.id;
-    console.log("id", id);
 
     const result = await productService.updateChoosenProduct(id, req.body);
     res.status(HttpCode.OK).json({ data: result });
   } catch (error) {
-    console.log("err updateChoosenProduct:", error);
     if (error instanceof Errors) res.status(error.code).json(error);
     else res.status(Errors.standard.code).json(Errors.standard);
   }
@@ -181,7 +174,6 @@ productController.getAllProducts = async (req: Request, res: Response) => {
 
     res.render("products", { products: products, flavors: flavors });
   } catch (error) {
-    console.log("err getAllProducts:", error);
     if (error instanceof Errors) res.status(error.code).json(error);
     else res.status(Errors.standard.code).json(Errors.standard);
   }
@@ -207,7 +199,6 @@ productController.createNewFlavor = async (
       `<script> alert("Successful creation"); window.location.replace('/adminRouter/product/all')</script>`
     );
   } catch (error) {
-    console.log("err createNewFlavor:", error);
     const message =
       error instanceof Errors ? error.message : Message.SOMETHING_WENT_WRONG;
     res.send(
@@ -224,7 +215,6 @@ productController.updateChoosenFlavor = async (req: Request, res: Response) => {
     const result = await productService.updateChoosenFlavor(id, req.body);
     res.status(HttpCode.OK).json({ data: result });
   } catch (error) {
-    console.log("err updateChoosenProduct:", error);
     if (error instanceof Errors) res.status(error.code).json(error);
     else res.status(Errors.standard.code).json(Errors.standard);
   }
@@ -237,7 +227,6 @@ productController.getAllFlavors = async (req: Request, res: Response) => {
 
     res.render("flavors", { flavors: flavors });
   } catch (error) {
-    console.log("err getAllFlavors:", error);
     if (error instanceof Errors) res.status(error.code).json(error);
     else res.status(Errors.standard.code).json(Errors.standard);
   }

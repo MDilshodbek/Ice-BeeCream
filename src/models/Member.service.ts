@@ -89,8 +89,6 @@ class MemberService {
       result.memberPassword = "";
       return result.toJSON();
     } catch (error) {
-      console.log(`Error, model:signup:`, error);
-
       throw new Errors(HttpCode.BAD_REQUEST, Message.USED_NICK_PHONE);
     }
   }

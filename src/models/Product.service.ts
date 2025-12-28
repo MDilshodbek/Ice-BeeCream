@@ -56,7 +56,6 @@ class ProductService {
       .exec();
     if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
 
-    console.log("result:", result);
     return result;
   }
 
@@ -88,7 +87,6 @@ class ProductService {
       .exec();
     if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
 
-    console.log("result:", result);
     return result;
   }
 
@@ -229,7 +227,6 @@ class ProductService {
   }
 
   public async getFlavors(inquiry: FlavorInquiry): Promise<Flavor[]> {
-    console.log("inquiry:", inquiry);
     const match: T = { flavorStatus: FlavorStatus.AVAILABLE };
 
     if (inquiry.flavorCollection)
@@ -239,7 +236,6 @@ class ProductService {
       match.flavorName = { $regex: new RegExp(inquiry.search, "i") };
     }
 
-    console.log("match:", match);
     const result = await this.flavorModel
       .aggregate([
         { $match: match },
@@ -247,7 +243,6 @@ class ProductService {
         { $limit: inquiry.limit * 1 },
       ])
       .exec();
-    console.log("result:", result);
 
     if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
 

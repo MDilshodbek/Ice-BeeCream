@@ -103,11 +103,6 @@ class OrderService {
       await this.orderItemModel.create(item);
       return "OK";
     });
-
-    console.log("promisedList:", promisedList);
-    const orderItemsState = await Promise.all(promisedList);
-
-    console.log("orderItemsState:", orderItemsState);
   }
 
   public async getMyOrders(

@@ -65,10 +65,6 @@ $(function () {
     const status = $(`#${id}.new-product-status`).val();
     const type = $(this).data("type"); // Get whether it's 'product' or 'flavor'
 
-    console.log("id:", id);
-    console.log("status:", status);
-    console.log("type:", type);
-
     try {
       let url = "";
       let payload = {};
@@ -85,7 +81,6 @@ $(function () {
       const result = response.data;
 
       if (result.data) {
-        console.log(`${type} updated successfully!`);
         $(this).blur();
       } else {
         alert(`${type} update failed!`);

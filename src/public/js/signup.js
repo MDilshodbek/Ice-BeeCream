@@ -13,7 +13,6 @@ $(function () {
         alert("Please insert only jpg, jpeg or png!");
       } else {
         if (uploadFile) {
-          console.log(URL.createObjectURL(uploadFile));
           $(".upload-img-frame")
             .attr("src", URL.createObjectURL(uploadFile))
             .addClass("success");
