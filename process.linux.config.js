@@ -4,7 +4,7 @@ module.exports = {
   apps: [
     {
       name: "IceAdmin",
-      cwd: "/home/iceCream-project/ice-admin",
+      cwd: "/home/iceCream-project/Ice-BeeCream",
       script: "dist/server.js",
       watch: false,
       interpreter: "node",
