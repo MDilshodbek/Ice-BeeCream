@@ -101,6 +101,7 @@ class OrderService {
       item.orderId = orderId;
       item.productId = shapeIntoMongooseObjectId(item.productId);
       await this.orderItemModel.create(item);
+      await Promise.all(promisedList);
       return "OK";
     });
   }
@@ -335,7 +336,7 @@ class OrderService {
         : parseFloat(doc.unitPrice?.toString?.() ?? "0");
 
     return {
-      _id: doc._id, 
+      _id: doc._id,
       unitPrice: priceNum,
       displayName: doc.displayName,
       image: doc.image,

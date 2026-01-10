@@ -21,7 +21,12 @@ export enum Message {
   BLOCKED_USER = "You have been blocked, contact restaurant",
   WRONG_PASSWORD = "Wrong password, please try again",
   NOT_AUTHENTICATED = "You are not authenticated, Please login first",
-  CHOOSE_FLAVOR = "Choose your flavor first!"
+  CHOOSE_FLAVOR = "Choose your flavor first!",
+  NO_NICKNAME = "Nickname is required",
+  NO_PHONE = "Phone number is required",
+  NO_PASSWORD = "Password is required",
+  WRONG_PHONE = "Please write only numbers to Phone number!",
+  SHORT_PASSWORD = "Password must be at least 6 letters and symbols!"
 }
 
 class Errors extends Error {

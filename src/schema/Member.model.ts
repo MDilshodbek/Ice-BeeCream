@@ -9,7 +9,7 @@ const memberSchema = new Schema(
       enum: MemberType,
       default: MemberType.USER,
     },
-    
+
     memberStatus: {
       type: String,
       enum: MemberStatus,
@@ -18,22 +18,27 @@ const memberSchema = new Schema(
 
     memberNick: {
       type: String,
-      index: { unique: true, sparse: true },
       required: true,
+      trim: true,
+      minlength: 2,
+      maxlength: 30,
+      index: { unique: true, sparse: true },
     },
 
     memberPhone: {
       type: String,
-      index: { unique: true, sparse: true },
       required: true,
+      trim: true,
+      match: /^\d{9,15}$/,
+      index: { unique: true, sparse: true },
     },
 
     memberPassword: {
       type: String,
-      select: false,
       required: true,
+      minlength: 6,
+      select: false,
     },
-
     memberAddress: {
       type: String,
     },

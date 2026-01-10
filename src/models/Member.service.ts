@@ -81,6 +81,35 @@ class MemberService {
   // SPA  ========================================
 
   public async signup(input: MemberInput): Promise<Member> {
+    const nick = (input.memberNick ?? "").trim();
+    const phone = (input.memberPhone ?? "").trim();
+    const password = (input.memberPassword ?? "").trim();
+
+    if (!nick) {
+      throw new Errors(HttpCode.BAD_REQUEST, Message.NO_NICKNAME);
+    }
+
+    if (!phone) {
+      throw new Errors(HttpCode.BAD_REQUEST, Message.NO_PHONE);
+    }
+
+    if (!password) {
+      throw new Errors(HttpCode.BAD_REQUEST, Message.NO_PASSWORD);
+    }
+
+    // CHANGED: telefon faqat raqam bo‘lsin
+    if (!/^\d{9,15}$/.test(phone)) {
+      throw new Errors(HttpCode.BAD_REQUEST, Message.WRONG_PHONE);
+    }
+
+    // CHANGED: parol minimal uzunlik
+    if (password.length < 6) {
+      throw new Errors(HttpCode.BAD_REQUEST, Message.WRONG_PASSWORD);
+    }
+
+    input.memberNick = nick;
+    input.memberPhone = phone;
+    input.memberPassword = password;
     const salt = await bcrypt.genSalt();
     input.memberPassword = await bcrypt.hash(input.memberPassword, salt);
 

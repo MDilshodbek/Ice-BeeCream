@@ -239,6 +239,7 @@ class ProductService {
     const result = await this.flavorModel
       .aggregate([
         { $match: match },
+        { $sort: { createdAt: -1 } },
         { $skip: (inquiry.page * 1 - 1) * inquiry.limit },
         { $limit: inquiry.limit * 1 },
       ])
