@@ -25,7 +25,7 @@ export enum Message {
   NO_NICKNAME = "Nickname is required",
   NO_PHONE = "Phone number is required",
   NO_PASSWORD = "Password is required",
-  WRONG_PHONE = "Please write only numbers to Phone number!",
+  WRONG_PHONE = "Please insert only numbers to Phone number!",
   SHORT_PASSWORD = "Password must be at least 6 letters and symbols!"
 }
 
