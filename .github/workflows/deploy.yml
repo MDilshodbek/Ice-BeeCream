@@ -1,0 +1,47 @@
+name: Backend build & deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+# Never run two deploys at the same time; queue the newer one.
+concurrency:
+  group: ice-backend-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build on GitHub
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24 # same major version as the server
+          cache: npm
+
+      - name: Install all dependencies
+        run: npm ci
+
+      - name: Build (tsc + copy views/public)
+        run: npm run build
+
+      - name: Keep only production dependencies
+        run: npm prune --omit=dev
+
+      - name: Package release
+        run: |
+          mkdir -p out
+          tar -czf out/backend.tar.gz dist node_modules package.json ecosystem.config.js
+          ls -lh out/backend.tar.gz
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: backend-release
+          path: out/backend.tar.gz
+          retention-days: 7
