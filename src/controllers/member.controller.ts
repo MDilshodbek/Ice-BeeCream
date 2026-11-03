@@ -15,6 +15,10 @@ import { AUTH_TIMER } from "../libs/config";
 const memberService = new MemberService();
 const authService = new AuthService();
 
+// COOKIE_DOMAIN (e.g. ".ice-beecream.com") lets the frontend on the main
+// domain read the cookie set by the API subdomain. Unset in local dev.
+const cookieDomain = () => process.env.COOKIE_DOMAIN || undefined;
+
 const memberController: T = {};
 memberController.signup = async (req: Request, res: Response) => {
   try {
@@ -26,6 +30,7 @@ memberController.signup = async (req: Request, res: Response) => {
     res.cookie("accessToken", token, {
       maxAge: AUTH_TIMER * 3600 * 1000,
       httpOnly: false,
+      domain: cookieDomain(),
     });
 
     res.status(HttpCode.CREATED).json({ member: result, accessToken: token });
@@ -46,6 +51,7 @@ memberController.login = async (req: Request, res: Response) => {
     res.cookie("accessToken", token, {
       maxAge: AUTH_TIMER * 3600 * 1000,
       httpOnly: false,
+      domain: cookieDomain(),
     });
 
     res.status(HttpCode.OK).json({ member: result, accessToken: token });
@@ -59,7 +65,11 @@ memberController.login = async (req: Request, res: Response) => {
 memberController.logout = (req: ExtendedRequest, res: Response) => {
   try {
     console.log("logout");
-    res.cookie("accessToken", null, { maxAge: 0, httpOnly: true });
+    res.cookie("accessToken", null, {
+      maxAge: 0,
+      httpOnly: true,
+      domain: cookieDomain(),
+    });
     res.status(HttpCode.OK).json({ logout: true });
   } catch (error) {
     console.log("err logout:", error);
