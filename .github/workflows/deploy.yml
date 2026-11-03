@@ -38,10 +38,30 @@ jobs:
         run: |
           mkdir -p out
           tar -czf out/backend.tar.gz dist node_modules package.json ecosystem.config.js
-          ls -lh out/backend.tar.gz
+          cp scripts/deploy.sh out/deploy.sh
+          ls -lh out
 
       - uses: actions/upload-artifact@v4
         with:
           name: backend-release
-          path: out/backend.tar.gz
+          path: |
+            out/backend.tar.gz
+            out/deploy.sh
           retention-days: 7
+
+  deploy:
+    name: Deploy on server
+    needs: build
+    runs-on: [self-hosted, linux, ice]
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: backend-release
+          path: ${{ runner.temp }}/ice-backend
+
+      - name: Unpack, switch release, reload PM2, health check
+        run: bash "${{ runner.temp }}/ice-backend/deploy.sh" "${{ runner.temp }}/ice-backend/backend.tar.gz"
+
+      - name: Clean up download
+        if: always()
+        run: rm -rf "${{ runner.temp }}/ice-backend"
