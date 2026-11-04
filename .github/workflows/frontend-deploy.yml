@@ -1,0 +1,33 @@
+name: Frontend deploy
+
+# Started by the ice-react repo after it publishes a build release.
+# Note: repository_dispatch always uses this file from the DEFAULT branch (develop).
+on:
+  repository_dispatch:
+    types: [frontend-release]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "ice-react release tag to deploy (e.g. build-12-abc1234)"
+        required: true
+
+concurrency:
+  group: ice-frontend-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Install frontend build on server
+    runs-on: [self-hosted, linux, ice]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts
+
+      - name: Download release, switch current, prune
+        env:
+          TAG: ${{ github.event.client_payload.tag || inputs.tag }}
+        run: bash scripts/deploy-frontend.sh "$TAG"
